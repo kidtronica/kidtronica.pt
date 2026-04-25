@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="pt" id="html-root">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Kidtrónica — Kits de electrónica educativa · PT & ES">
+<title>Kidtrónica — Kits de Electrónica Educativa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Syne:wght@400;500;600;700;800&family=Share+Tech+Mono&family=Orbitron:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --verde:#00e87a; --verde-esc:#00b85f; --verde-t:#00e87a18;
+  --fundo:#0a0e0b; --fundo2:#111714; --fundo3:#1a211c;
+  --borde:#1e2b22; --texto:#e8f0ea; --texto2:#7a9982; --texto3:#4a6352;
+  --branco:#ffffff; --erro:#ff4d4d; --aviso:#ffb347;
+  --hw-pwr:#ef4444; --hw-gnd:#3b82f6; --hw-sig:#22c55e;
+  --hw-i2c:#f59e0b; --hw-spi:#a855f7; --hw-dat:#06b6d4;
+  --radio:12px; --radio-lg:20px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:#04222e;color:var(--texto);min-height:100vh;overflow-x:hidden;line-height:1.6}
+/* Fundo PCB "fixado" compatível com iOS Safari (não suporta background-attachment:fixed de forma fiável).
+   Nota: body fica sem position:relative para que o ::before com z-index:-1 não seja capturado num stacking context. */
+body::before{content:"";position:fixed;inset:0;z-index:-1;background:linear-gradient(rgba(2,10,18,.35), rgba(2,10,18,.48)),url('images/arduino_bg.webp') center/cover no-repeat,#04222e;pointer-events:none}
+nav{position:sticky;top:0;z-index:100;background:rgba(2,16,22,.90);backdrop-filter:blur(16px);border-bottom:1px solid rgba(196,154,79,.30);padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:6px;cursor:pointer}.logo-img{height:40px;width:auto;display:block;border-radius:4px}.logo-suf{font-family:'Share Tech Mono',monospace;font-size:.85rem;color:var(--verde);font-weight:600;letter-spacing:.5px;padding:2px 6px;background:rgba(0,232,122,.08);border:1px solid rgba(0,232,122,.25);border-radius:6px}
+
+.nav-links{display:flex;align-items:center;gap:8px}
+.nav-link{font-size:.9rem;font-weight:500;color:var(--texto2);padding:8px 14px;border-radius:8px;cursor:pointer;transition:all .2s;border:none;background:none}
+.nav-link:hover{color:var(--texto);background:var(--fundo3)}
+/* toggle de língua */
+.lang-toggle{display:flex;align-items:center;gap:4px;background:var(--fundo2);border:1px solid var(--borde);border-radius:10px;padding:4px;margin-right:8px}
+.lang-btn{padding:5px 12px;border-radius:8px;border:none;background:none;color:var(--texto2);cursor:pointer;font-size:.82rem;font-weight:600;transition:all .2s;font-family:'DM Sans',sans-serif}
+.lang-btn.activo{background:var(--verde);color:#000}
+.lang-btn:not(.activo):hover{color:var(--texto)}
+.btn-carrito{display:flex;align-items:center;gap:8px;padding:8px 16px;background:var(--fundo2);border:1px solid var(--borde);border-radius:10px;color:var(--texto);cursor:pointer;font-size:.9rem;font-weight:500;transition:all .2s}
+.btn-carrito:hover{border-color:var(--verde);color:var(--verde)}
+.badge-carrito{background:var(--verde);color:#000;border-radius:99px;padding:1px 7px;font-size:.75rem;font-weight:700;min-width:20px;text-align:center}
+.banner-info{background:rgba(2,16,22,.70);border-bottom:1px solid rgba(196,154,79,.22);padding:10px 24px;display:flex;align-items:center;justify-content:center;gap:32px;font-size:.82rem;color:var(--texto2);flex-wrap:wrap}
+.banner-info span{display:flex;align-items:center;gap:6px}
+.banner-info strong{color:var(--verde)}
+.pagina{display:none}.pagina.activa{display:block}
+/* hero */
+.hero{position:relative;padding:80px 24px 60px;text-align:center;overflow:hidden}
+.hero-bg{position:absolute;inset:0;opacity:.04;pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,232,122,.10);backdrop-filter:blur(6px);border:1px solid var(--verde);border-radius:99px;padding:6px 16px;font-size:.8rem;font-weight:600;color:var(--verde);margin-bottom:24px;letter-spacing:.5px;text-transform:uppercase;box-shadow:0 6px 18px rgba(0,0,0,.45), 0 0 20px rgba(0,232,122,.18)}
+.hero h1{font-family:'Orbitron',sans-serif;font-size:clamp(2.2rem,5vw,3.8rem);font-weight:500;line-height:1.15;margin-bottom:20px;letter-spacing:-.5px;text-shadow:0 4px 18px rgba(0,0,0,.75), 0 2px 4px rgba(0,0,0,.55), 0 0 30px rgba(0,0,0,.40)}
+.hero h1 em{font-style:normal;color:var(--verde);font-weight:600}
+.hero p{font-size:1.1rem;color:var(--texto2);max-width:560px;margin:0 auto 36px;text-shadow:0 2px 10px rgba(0,0,0,.70), 0 1px 2px rgba(0,0,0,.55)}.hero-logo{display:block;margin:0 auto 32px;max-width:min(620px,92vw);width:auto;height:auto;border-radius:6px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.60)) drop-shadow(0 18px 36px rgba(0,0,0,.75)) drop-shadow(0 30px 60px rgba(0,0,0,.55)) drop-shadow(0 0 40px rgba(0,232,122,.22));transition:transform .35s cubic-bezier(.2,.8,.2,1), filter .35s;will-change:transform}.hero-logo:hover{transform:translateY(-4px) scale(1.015);filter:drop-shadow(0 6px 10px rgba(0,0,0,.65)) drop-shadow(0 22px 44px rgba(0,0,0,.80)) drop-shadow(0 36px 70px rgba(0,0,0,.60)) drop-shadow(0 0 55px rgba(0,232,122,.32))}
+.hero-stats{display:flex;justify-content:center;gap:48px;flex-wrap:wrap;margin-bottom:48px}
+.stat{text-align:center}
+.stat-num{font-family:'Orbitron',sans-serif;font-size:2.1rem;font-weight:700;color:var(--verde);line-height:1;text-shadow:0 3px 12px rgba(0,0,0,.6), 0 0 18px rgba(0,232,122,.25);letter-spacing:.5px}
+.stat-lbl{font-size:.8rem;color:var(--texto2);margin-top:4px}
+/* filtros */
+.filtros{padding:0 24px 24px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.btn-filtro{padding:8px 18px;border-radius:99px;border:1px solid var(--borde);background:var(--fundo2);color:var(--texto2);font-size:.85rem;font-weight:500;cursor:pointer;transition:all .2s}
+.btn-filtro:hover,.btn-filtro.activo{border-color:var(--verde);background:var(--verde-t);color:var(--verde)}
+/* packs-highlight na home */
+.packs-hl{padding:0 24px 18px;max-width:1400px;margin:0 auto}
+.packs-hl-head{text-align:center;margin-bottom:14px}
+.packs-hl-titulo{font-family:'Orbitron',sans-serif;font-weight:500;letter-spacing:-.3px;font-size:1.15rem;color:var(--verde);margin-bottom:4px}
+.packs-hl-sub{font-size:.82rem;color:var(--texto2)}
+.packs-hl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.pack-card-mini{background:#0a5e3a;border:1px solid #1a4a32;border-radius:12px;padding:12px 10px 10px;cursor:pointer;transition:transform .2s cubic-bezier(.2,.8,.2,1), box-shadow .2s, border-color .2s;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;position:relative;overflow:hidden;min-height:130px}.pack-card-mini-bg{position:absolute;inset:0;z-index:0;overflow:hidden}.pack-card-mini-bg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .9s ease-in-out;transform:scale(1.05)}.pack-card-mini-bg img.active{opacity:1;transform:scale(1.12);transition:opacity .9s ease-in-out, transform 4s linear}.pack-card-mini::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(rgba(7,26,16,.55), rgba(7,26,16,.88)),url("images/pcb_pattern.svg");background-size:cover, 300px 300px;background-repeat:no-repeat, repeat;transition:opacity .2s}.pack-card-mini:hover::before{opacity:.75}.pack-card-mini>.pack-card-mini-ico,.pack-card-mini>.pack-card-mini-nome,.pack-card-mini>.pack-card-mini-n,.pack-card-mini>.pack-card-mini-saving{position:relative;z-index:2}
+.pack-card-mini:hover{border-color:var(--verde);transform:translateY(-3px);box-shadow:0 14px 26px -8px rgba(0,0,0,.55),0 0 22px rgba(0,232,122,.18)}
+.pack-card-mini.activo{border-color:var(--verde);box-shadow:0 0 0 2px rgba(0,232,122,.45) inset,0 10px 22px -6px rgba(0,0,0,.55),0 0 26px rgba(0,232,122,.20)}
+.pack-card-mini-ico{font-size:1.5rem;line-height:1}
+.pack-card-mini-nome{font-family:'Syne',sans-serif;font-weight:700;font-size:.78rem;color:var(--texto);line-height:1.2}
+.pack-card-mini-n{font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--texto3)}
+.pack-card-mini-saving{font-family:'Orbitron',sans-serif;font-weight:600;font-size:.68rem;color:var(--verde);letter-spacing:.3px;margin-top:2px}
+.pack-filtro-info{max-width:1400px;margin:0 auto 16px;padding:10px 18px;background:rgba(0,232,122,.09);border:1px solid rgba(0,232,122,.28);border-radius:10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:.85rem;color:var(--texto)}
+.pack-filtro-info a{color:var(--verde);text-decoration:none;font-weight:700;margin-left:8px}
+.pack-filtro-info button{background:transparent;border:1px solid rgba(0,232,122,.4);color:var(--verde);padding:5px 12px;border-radius:99px;font-size:.75rem;cursor:pointer;font-family:'Syne',sans-serif;font-weight:600}
+.pack-filtro-info button:hover{background:rgba(0,232,122,.12)}
+/* grid */
+.grid-kits{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;padding:0 24px 80px;max-width:1400px;margin:0 auto}
+.tarjeta-kit{background:linear-gradient(rgba(7,26,16,.72), rgba(7,26,16,.78)),url("images/pcb_pattern.svg"),#0a5e3a;background-size:cover, 300px 300px, cover;background-repeat:no-repeat, repeat, no-repeat;border:1px solid #1a4a32;border-radius:var(--radio-lg);overflow:hidden;cursor:pointer;transition:transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s, border-color .25s;display:flex;flex-direction:column;box-shadow:0 22px 50px -10px rgba(0,0,0,.60),0 8px 18px -4px rgba(0,0,0,.45),0 0 0 1px rgba(0,0,0,.25) inset,0 1px 0 rgba(255,255,255,.06) inset}
+.tarjeta-kit:hover{border-color:var(--verde);transform:translateY(-6px);box-shadow:0 30px 60px -10px rgba(0,0,0,.65),0 14px 25px -4px rgba(0,0,0,.50),0 0 40px rgba(0,232,122,.22),0 0 0 1px rgba(0,232,122,.35) inset,0 1px 0 rgba(255,255,255,.08) inset}
+.tarjeta-img{height:180px;background:rgba(7,26,16,.55);display:flex;align-items:center;justify-content:center;font-size:3.5rem;position:relative;border-bottom:1px solid #1a4a32;overflow:hidden}
+.tarjeta-img video{width:100%;height:100%;object-fit:cover}
+.tarjeta-img .emoji-fallback{display:flex;align-items:center;justify-content:center;width:100%;height:100%}
+.nivel-badge{position:absolute;top:12px;left:12px;padding:4px 10px;border-radius:99px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.nivel-1{background:#1a3a2a;color:#4ade80;border:1px solid #166534}
+.nivel-2{background:#1a2e3a;color:#60a5fa;border:1px solid #1e40af}
+.nivel-3{background:#2a2a1a;color:#facc15;border:1px solid #854d0e}
+.nivel-4{background:#2a1a1a;color:#fb923c;border:1px solid #9a3412}
+.nivel-5{background:#2a1a2a;color:#c084fc;border:1px solid #7e22ce}
+.edad-badge{position:absolute;top:12px;right:12px;background:rgba(0,0,0,.6);border:1px solid var(--borde);padding:4px 10px;border-radius:99px;font-size:.72rem;color:var(--texto2)}
+.tarjeta-cuerpo{padding:20px;flex:1;display:flex;flex-direction:column;gap:12px}
+.tarjeta-num{font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--texto3)}
+.tarjeta-titulo{font-family:'Syne',sans-serif;font-weight:700;font-size:1.05rem;line-height:1.3;color:var(--texto)}
+.tarjeta-desc{font-size:.85rem;color:var(--texto2);line-height:1.5;flex:1}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:rgba(7,26,16,.65);border:1px solid #1a4a32;padding:3px 10px;border-radius:99px;font-size:.72rem;color:var(--texto2);font-family:'Share Tech Mono',monospace}.tarjeta-packs{display:flex;flex-direction:column;align-items:flex-end;gap:5px;padding:10px 14px 10px 14px;border-bottom:1px solid #1a4a32;background:rgba(7,26,16,.40)}.pack-ref{display:inline-flex;align-items:center;gap:6px;background:rgba(0,232,122,.10);border:1px solid rgba(0,232,122,.28);border-radius:99px;padding:4px 11px;font-family:'Share Tech Mono',monospace;font-size:.70rem;color:var(--texto2);cursor:pointer;transition:all .2s;text-align:right;line-height:1.2}.pack-ref:hover{background:rgba(0,232,122,.18);border-color:var(--verde);color:var(--verde);transform:translateY(-1px);box-shadow:0 4px 10px rgba(0,232,122,.18)}.pack-ref strong{color:var(--verde);font-weight:700}.pack-ico{font-size:.95rem;line-height:1}.combo-flash{animation:combo-flash .8s ease-out 2}@keyframes combo-flash{0%,100%{box-shadow:0 18px 42px -10px rgba(0,0,0,.55),0 6px 14px -4px rgba(0,0,0,.40),0 1px 0 rgba(255,255,255,.05) inset}50%{box-shadow:0 0 0 3px var(--verde),0 0 45px rgba(0,232,122,.55),0 18px 42px -10px rgba(0,0,0,.55)}}
+.tarjeta-pie{padding:16px 20px;border-top:1px solid #1a4a32;display:flex;align-items:center;justify-content:space-between}
+.precio{font-family:'Orbitron',sans-serif;font-size:1.35rem;font-weight:700;color:var(--texto);letter-spacing:.5px}
+.precio-iva{font-size:.72rem;color:var(--texto3);font-weight:400;display:block;margin-top:2px}
+.btn-carrito-tarjeta{padding:10px 18px;background:var(--verde);color:#000;border:none;border-radius:10px;font-weight:700;font-size:.85rem;cursor:pointer;transition:all .2s}
+.btn-carrito-tarjeta:hover{background:var(--verde-esc)}
+/* detalhe */
+.detalle-header{padding:32px 24px 0;max-width:900px;margin:0 auto}
+.btn-volver{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border:1px solid var(--borde);border-radius:10px;background:var(--fundo2);color:var(--texto2);cursor:pointer;font-size:.85rem;transition:all .2s;margin-bottom:24px}
+.btn-volver:hover{border-color:var(--verde);color:var(--verde)}
+.detalle-titulo{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;margin-bottom:8px;letter-spacing:-.5px}
+.detalle-video{margin-bottom:16px}
+.detalle-meta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px}
+.detalle-grid{display:grid;grid-template-columns:1fr 340px;gap:32px;padding:0 24px 80px;max-width:900px;margin:0 auto}
+@media(max-width:768px){.detalle-grid{grid-template-columns:1fr}}
+.seccion{margin-bottom:32px}
+.seccion-titulo{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:var(--verde);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.paso{display:flex;gap:16px;margin-bottom:20px}
+.paso-num{width:28px;height:28px;min-width:28px;background:var(--verde-t);border:1px solid var(--verde);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--verde);font-weight:700;margin-top:2px}
+.paso-contenido h4{font-weight:600;margin-bottom:4px;font-size:.95rem}
+.paso-contenido p{font-size:.88rem;color:var(--texto2);line-height:1.6}
+.tabla-hw{width:100%;border-collapse:collapse;font-size:.85rem;margin-top:8px}
+.tabla-hw th{background:var(--fundo3);padding:10px 14px;text-align:left;font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.5px;color:var(--texto2);border-bottom:1px solid var(--borde)}
+.tabla-hw td{padding:10px 14px;border-bottom:1px solid var(--borde);vertical-align:middle}
+.tabla-hw tr:last-child td{border-bottom:none}
+.pin-tipo{display:inline-block;padding:3px 10px;border-radius:99px;font-size:.72rem;font-weight:700;font-family:'Share Tech Mono',monospace}
+.pin-pwr{background:rgba(239,68,68,.15);color:var(--hw-pwr);border:1px solid rgba(239,68,68,.3)}
+.pin-gnd{background:rgba(59,130,246,.15);color:var(--hw-gnd);border:1px solid rgba(59,130,246,.3)}
+.pin-sig{background:rgba(34,197,94,.15);color:var(--hw-sig);border:1px solid rgba(34,197,94,.3)}
+.pin-i2c{background:rgba(245,158,11,.15);color:var(--hw-i2c);border:1px solid rgba(245,158,11,.3)}
+.pin-spi{background:rgba(168,85,247,.15);color:var(--hw-spi);border:1px solid rgba(168,85,247,.3)}
+.pin-dat{background:rgba(6,182,212,.15);color:var(--hw-dat);border:1px solid rgba(6,182,212,.3)}
+.bloque-codigo{background:#0d1a0f;border:1px solid var(--borde);border-left:3px solid var(--verde);border-radius:10px;padding:20px;font-family:'Share Tech Mono',monospace;font-size:.82rem;color:#a8d8b0;overflow-x:auto;line-height:1.7;margin-top:8px;white-space:pre}
+.codigo-comentario{color:var(--texto3)}.codigo-kw{color:#ff7b54}.codigo-fn{color:#60d8a0}.codigo-num{color:#c084fc}.codigo-str{color:#facc15}
+.panel-seguridad{background:rgba(255,179,71,.06);border:1px solid rgba(255,179,71,.25);border-radius:var(--radio);padding:16px;margin-top:8px}
+.panel-seguridad .seg-titulo{font-weight:700;color:var(--aviso);font-size:.88rem;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.panel-seguridad ul{padding-left:18px;font-size:.85rem;color:var(--texto2);display:flex;flex-direction:column;gap:6px}
+.panel-lateral{position:sticky;top:80px;align-self:start}
+.tarjeta-compra{background:linear-gradient(rgba(7,26,16,.76), rgba(7,26,16,.82)),url("images/pcb_pattern.svg"),#0a5e3a;background-size:cover, 300px 300px, cover;background-repeat:no-repeat, repeat, no-repeat;border:1px solid #1a4a32;border-radius:var(--radio-lg);padding:24px}
+.precio-grande{font-family:'Syne',sans-serif;font-size:2.4rem;font-weight:800;color:var(--texto);margin-bottom:4px}
+.precio-desglose{font-size:.8rem;color:var(--texto3);margin-bottom:20px}
+.btn-comprar{width:100%;padding:16px;background:var(--verde);color:#000;border:none;border-radius:var(--radio);font-weight:700;font-size:1rem;cursor:pointer;transition:all .2s;margin-bottom:12px;font-family:'DM Sans',sans-serif}
+.btn-comprar:hover{background:var(--verde-esc)}
+.incl-lista{display:flex;flex-direction:column;gap:8px;margin-top:20px;border-top:1px solid var(--borde);padding-top:20px}
+.incl-item{display:flex;align-items:center;gap:10px;font-size:.85rem;color:var(--texto2)}
+.incl-icon{color:var(--verde);font-size:1rem}
+/* carrito */
+.carrito-contenido{max-width:800px;margin:0 auto;padding:40px 24px 80px}
+.carrito-titulo{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;margin-bottom:32px}
+.carrito-item{display:flex;align-items:center;gap:16px;padding:20px;background:linear-gradient(rgba(7,26,16,.76), rgba(7,26,16,.82)),url("images/pcb_pattern.svg"),#0a5e3a;background-size:cover, 300px 300px, cover;background-repeat:no-repeat, repeat, no-repeat;border:1px solid #1a4a32;border-radius:var(--radio);margin-bottom:12px}
+.carrito-item-emoji{font-size:2rem;min-width:50px;text-align:center}
+.carrito-item-info{flex:1}
+.carrito-item-nombre{font-weight:600;margin-bottom:4px}
+.carrito-item-nivel{font-size:.8rem;color:var(--texto2)}
+.carrito-item-controles{display:flex;align-items:center;gap:12px}
+.btn-qty{width:32px;height:32px;border-radius:8px;border:1px solid var(--borde);background:var(--fundo3);color:var(--texto);cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.btn-qty:hover{border-color:var(--verde);color:var(--verde)}
+.qty-num{font-family:'Share Tech Mono',monospace;font-size:1rem;min-width:24px;text-align:center}
+.carrito-item-precio{font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;min-width:70px;text-align:right}
+.btn-eliminar{background:none;border:none;color:var(--texto3);cursor:pointer;font-size:1.1rem;transition:color .2s;padding:4px}
+.btn-eliminar:hover{color:var(--erro)}
+.carrito-resumen{background:linear-gradient(rgba(7,26,16,.76), rgba(7,26,16,.82)),url("images/pcb_pattern.svg"),#0a5e3a;background-size:cover, 300px 300px, cover;background-repeat:no-repeat, repeat, no-repeat;border:1px solid #1a4a32;border-radius:var(--radio-lg);padding:24px;margin-top:24px}
+.resumen-linea{display:flex;justify-content:space-between;padding:8px 0;font-size:.9rem;border-bottom:1px solid var(--borde)}
+.resumen-linea:last-of-type{border-bottom:none}
+.resumen-total{display:flex;justify-content:space-between;padding:16px 0 0;font-family:'Syne',sans-serif;font-weight:700;font-size:1.2rem;margin-top:8px}
+.envio-gratis{color:var(--verde);font-weight:600}
+/* checkout */
+.checkout-contenido{max-width:720px;margin:0 auto;padding:40px 24px 80px}
+.checkout-titulo{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;margin-bottom:32px}
+.checkout-seccion{background:linear-gradient(rgba(7,26,16,.76), rgba(7,26,16,.82)),url("images/pcb_pattern.svg"),#0a5e3a;background-size:cover, 300px 300px, cover;background-repeat:no-repeat, repeat, no-repeat;border:1px solid #1a4a32;border-radius:var(--radio-lg);padding:24px;margin-bottom:20px}
+.checkout-seccion-titulo{font-weight:700;font-size:.95rem;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--borde);display:flex;align-items:center;gap:8px}
+.campo-grupo{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+@media(max-width:500px){.campo-grupo{grid-template-columns:1fr}}
+.campo-grupo.un-col{grid-template-columns:1fr}
+.campo label{display:block;font-size:.8rem;color:var(--texto2);margin-bottom:6px;font-weight:500}
+.campo input,.campo select{width:100%;padding:11px 14px;background:var(--fundo3);border:1px solid var(--borde);border-radius:10px;color:var(--texto);font-family:'DM Sans',sans-serif;font-size:.9rem;transition:border-color .2s}
+.campo input:focus,.campo select:focus{outline:none;border-color:var(--verde)}
+.campo select option{background:var(--fundo2)}
+.metodos-pago{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.metodo-pago{padding:14px;border:1px solid var(--borde);border-radius:var(--radio);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:12px;font-size:.88rem;font-weight:500}
+.metodo-pago:hover,.metodo-pago.seleccionado{border-color:var(--verde);background:var(--verde-t);color:var(--verde)}
+.btn-finalizar{width:100%;padding:18px;background:var(--verde);color:#000;border:none;border-radius:var(--radio);font-weight:700;font-size:1.05rem;cursor:pointer;transition:all .2s;margin-top:24px;font-family:'DM Sans',sans-serif}
+.btn-finalizar:hover{background:var(--verde-esc)}
+/* confirmação */
+.confirmacion-contenido{max-width:600px;margin:0 auto;padding:80px 24px;text-align:center}
+.confirmacion-icono{font-size:5rem;margin-bottom:24px;animation:aparecer .5s ease}
+@keyframes aparecer{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+.confirmacion-titulo{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;margin-bottom:16px}
+.confirmacion-ref{font-family:'Share Tech Mono',monospace;background:var(--fundo2);border:1px solid var(--verde);border-radius:10px;padding:12px 20px;display:inline-block;color:var(--verde);font-size:1rem;margin:16px 0}
+.confirmacion-info{color:var(--texto2);font-size:.95rem;line-height:1.8;margin-bottom:32px}
+/* como funciona */
+.como-funciona-contenido{max-width:800px;margin:0 auto;padding:60px 24px 80px}
+.cf-titulo{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;margin-bottom:12px}
+.cf-subtitulo{color:var(--texto2);font-size:1rem;margin-bottom:48px}
+.cf-pasos{display:flex;flex-direction:column;gap:24px;margin-bottom:48px}
+.cf-paso{display:flex;gap:20px;padding:24px;background:linear-gradient(rgba(7,26,16,.76), rgba(7,26,16,.82)),url("images/pcb_pattern.svg"),#0a5e3a;background-size:cover, 300px 300px, cover;background-repeat:no-repeat, repeat, no-repeat;border:1px solid #1a4a32;border-radius:var(--radio-lg);transition:border-color .2s}
+.cf-paso:hover{border-color:var(--verde)}
+.cf-paso-num{font-family:'Syne',sans-serif;font-size:2.5rem;font-weight:800;color:var(--verde);opacity:.5;line-height:1;min-width:50px}
+.cf-paso h3{font-family:'Syne',sans-serif;font-weight:700;margin-bottom:8px}
+.cf-paso p{color:var(--texto2);font-size:.9rem;line-height:1.6}
+.niveles-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-bottom:48px}
+.nivel-tarjeta{padding:20px;background:linear-gradient(rgba(7,26,16,.76), rgba(7,26,16,.82)),url("images/pcb_pattern.svg"),#0a5e3a;background-size:cover, 300px 300px, cover;background-repeat:no-repeat, repeat, no-repeat;border:1px solid #1a4a32;border-radius:var(--radio-lg)}
+.nivel-tarjeta-num{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;margin-bottom:8px}
+.nivel-tarjeta h4{font-weight:700;margin-bottom:6px}
+/* aprender */
+.aprender-contenido{max-width:800px;margin:0 auto;padding:60px 24px 80px}
+.concepto-card{background:linear-gradient(rgba(7,26,16,.76), rgba(7,26,16,.82)),url("images/pcb_pattern.svg"),#0a5e3a;background-size:cover, 300px 300px, cover;background-repeat:no-repeat, repeat, no-repeat;border:1px solid #1a4a32;border-radius:var(--radio-lg);padding:24px;margin-bottom:20px}
+.concepto-titulo{font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.concepto-texto{font-size:.9rem;color:var(--texto2);line-height:1.7;margin-bottom:12px}
+/* footer */
+footer{background:rgba(2,16,22,.85);border-top:1px solid rgba(196,154,79,.30);padding:48px 24px 32px}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;max-width:1200px;margin:0 auto 40px}
+@media(max-width:768px){.footer-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.footer-grid{grid-template-columns:1fr}}
+.footer-logo{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;margin-bottom:12px}
+.footer-logo span{color:var(--verde)}
+.footer-desc{font-size:.85rem;color:var(--texto2);line-height:1.6;margin-bottom:16px;max-width:280px}
+.footer-legal{font-size:.72rem;color:var(--texto3);line-height:1.7}
+.footer-col h4{font-weight:700;font-size:.85rem;text-transform:uppercase;letter-spacing:.5px;color:var(--texto2);margin-bottom:16px}
+.footer-link{display:block;font-size:.85rem;color:var(--texto2);cursor:pointer;padding:3px 0;transition:color .2s}
+.footer-link:hover{color:var(--verde)}
+.footer-bottom{max-width:1200px;margin:0 auto;padding-top:24px;border-top:1px solid var(--borde);display:flex;justify-content:space-between;align-items:center;font-size:.8rem;color:var(--texto3);flex-wrap:wrap;gap:8px}
+/* avisos */
+.aviso-aesa{background:rgba(255,77,77,.06);border:1px solid rgba(255,77,77,.25);border-radius:var(--radio);padding:16px;margin-top:12px}
+.aviso-aesa .av-titulo{font-weight:700;color:var(--erro);font-size:.88rem;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.aviso-aesa ul{padding-left:18px;font-size:.85rem;color:var(--texto2);display:flex;flex-direction:column;gap:6px}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--fundo2);border:1px solid var(--verde);border-radius:12px;padding:14px 20px;display:flex;align-items:center;gap:12px;font-size:.9rem;font-weight:500;z-index:200;transform:translateY(100px);opacity:0;transition:all .3s;max-width:320px}
+.toast.visible{transform:translateY(0);opacity:1}
+.carrito-vacio{text-align:center;padding:60px 20px;color:var(--texto2)}
+.carrito-vacio-icono{font-size:4rem;margin-bottom:16px}
+/* nav mobile — botão hamburger e cart mobile (escondidos por omissão, mostrados em mobile) */
+.nav-toggle,.btn-carrito-mobile{display:none}
+.nav-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(2px);z-index:98;opacity:0;transition:opacity .25s}
+.nav-backdrop.visible{display:block;opacity:1}
+/* ── COMBOS ── */
+.combos-wrap{max-width:1160px;margin:0 auto;padding:40px 32px 80px}
+.combos-hero{text-align:center;margin-bottom:48px}
+.combos-hero h2{font-family:'Orbitron',sans-serif;font-size:clamp(1.6rem,3.5vw,2.6rem);font-weight:500;letter-spacing:-.2px;margin-bottom:10px;text-shadow:0 4px 16px rgba(0,0,0,.7), 0 2px 4px rgba(0,0,0,.5)}
+.combos-hero p{color:var(--texto2);max-width:500px;margin:0 auto;line-height:1.65;font-size:.95rem}
+.combos-sec{font-family:'Share Tech Mono',monospace;font-size:.68rem;text-transform:uppercase;letter-spacing:.12em;color:var(--verde);margin:40px 0 18px;padding-bottom:8px;border-bottom:1px solid rgba(0,232,122,.15)}
+.combo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:20px;margin-bottom:16px}
+.combo-card{background:linear-gradient(rgba(7,26,16,.76), rgba(7,26,16,.82)),url("images/pcb_pattern.svg"),#0a5e3a;background-size:cover, 300px 300px, cover;background-repeat:no-repeat, repeat, no-repeat;border:1px solid #1a4a32;border-radius:14px;overflow:hidden;transition:border-color .2s,transform .2s,box-shadow .2s}
+.combo-card{box-shadow:0 18px 42px -10px rgba(0,0,0,.55),0 6px 14px -4px rgba(0,0,0,.40),0 1px 0 rgba(255,255,255,.05) inset}.combo-card:hover{border-color:rgba(0,232,122,.4);transform:translateY(-5px);box-shadow:0 26px 55px -10px rgba(0,0,0,.60),0 12px 22px -4px rgba(0,0,0,.45),0 0 32px rgba(0,232,122,.18),0 1px 0 rgba(255,255,255,.07) inset}
+.combo-head{padding:18px 20px 12px;display:flex;align-items:flex-start;gap:12px}
+.combo-ico{width:44px;height:44px;border-radius:10px;background:rgba(0,232,122,.1);border:1px solid rgba(0,232,122,.2);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+.combo-name{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:3px}
+.combo-desc{font-size:.77rem;color:var(--texto2);line-height:1.5}
+.combo-lvls{padding:0 20px 10px;display:flex;flex-wrap:wrap;gap:5px}
+.combo-lv{font-family:'Share Tech Mono',monospace;font-size:.58rem;padding:2px 7px;border-radius:4px}
+.combo-chips{padding:0 20px 12px;display:flex;flex-wrap:wrap;gap:5px}
+.combo-chip{font-family:'Share Tech Mono',monospace;font-size:.63rem;padding:3px 8px;border-radius:16px;border:1px solid var(--borde);color:var(--texto2);cursor:pointer;transition:all .15s}
+.combo-chip:hover{border-color:var(--verde);color:var(--verde)}
+.combo-chip.n1{border-color:rgba(74,222,128,.3);color:#4ade80}
+.combo-chip.n2{border-color:rgba(96,165,250,.3);color:#60a5fa}
+.combo-chip.n3{border-color:rgba(250,204,21,.3);color:#facc15}
+.combo-chip.n4{border-color:rgba(251,146,60,.3);color:#fb923c}
+.combo-chip.n5{border-color:rgba(192,132,252,.3);color:#c084fc}
+.combo-foot{padding:12px 20px 18px;border-top:1px solid #1a4a32;display:flex;align-items:center;justify-content:space-between}
+.combo-orig{font-size:.73rem;color:var(--texto3);text-decoration:line-through;margin-bottom:2px}
+.combo-now{font-family:'Orbitron',sans-serif;font-size:1.35rem;font-weight:700;color:var(--verde);letter-spacing:.5px}
+.combo-save{font-family:'Share Tech Mono',monospace;font-size:.62rem;background:rgba(0,232,122,.1);color:var(--verde);border:1px solid rgba(0,232,122,.22);padding:3px 8px;border-radius:14px;white-space:nowrap}
+.combo-btn{background:var(--verde);color:#000;border:none;font-family:'Syne',sans-serif;font-weight:700;font-size:.78rem;padding:8px 16px;border-radius:8px;cursor:pointer;transition:opacity .2s;white-space:nowrap}
+.combo-btn:hover{opacity:.85}
+.shared-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-bottom:40px}
+.shared-card{background:linear-gradient(rgba(7,26,16,.76), rgba(7,26,16,.82)),url("images/pcb_pattern.svg"),#0a5e3a;background-size:cover, 300px 300px, cover;background-repeat:no-repeat, repeat, no-repeat;border:1px solid #1a4a32;border-radius:10px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start}
+.shared-ico{font-size:1.3rem;flex-shrink:0;margin-top:2px}
+.shared-name{font-size:.82rem;font-weight:600;margin-bottom:2px}
+.shared-desc{font-size:.72rem;color:var(--texto2);line-height:1.45}
+.shared-n{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--verde);margin-top:4px}
+.combos-cta{background:linear-gradient(rgba(7,26,16,.76), rgba(7,26,16,.82)),url("images/pcb_pattern.svg"),#0a5e3a;background-size:cover, 300px 300px, cover;background-repeat:no-repeat, repeat, no-repeat;border:1px solid rgba(0,232,122,.35);border-radius:14px;padding:28px 32px;text-align:center;margin-top:8px}
+.combos-cta h3{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;margin-bottom:8px}
+.combos-cta p{color:var(--texto2);font-size:.88rem;margin-bottom:18px}
+@media(max-width:600px){.combo-grid{grid-template-columns:1fr}.combos-wrap{padding:24px 16px 60px}}
+
+/* =================================================================
+   MOBILE RESPONSIVE — bloco consolidado (22 Abr 2026)
+   Breakpoints: 1024px (tablet), 768px (mobile nav activa), 480px (phone apertado)
+   ================================================================= */
+
+/* Desactivar efeitos hover pesados em touch devices (iOS, Android) — hover "stuck" dá má UX */
+@media (hover:none){
+  .tarjeta-kit:hover,.combo-card:hover,.cf-paso:hover{transform:none;box-shadow:0 18px 40px -10px rgba(0,0,0,.55),0 6px 14px -4px rgba(0,0,0,.40),0 1px 0 rgba(255,255,255,.05) inset}
+  .hero-logo:hover{transform:none;filter:drop-shadow(0 4px 8px rgba(0,0,0,.60)) drop-shadow(0 18px 36px rgba(0,0,0,.75)) drop-shadow(0 30px 60px rgba(0,0,0,.55)) drop-shadow(0 0 40px rgba(0,232,122,.22))}
+  .pack-ref:hover{transform:none;box-shadow:none}
+}
+
+/* TABLET (≤1024px) — paddings ligeiramente menores */
+@media (max-width:1024px){
+  .grid-kits{padding:0 20px 60px;gap:16px}
+  .combos-wrap{padding:32px 20px 60px}
+  nav{padding:0 20px}
+  .banner-info{padding:10px 20px;gap:20px;font-size:.78rem}
+  .hero{padding:60px 20px 50px}
+  footer{padding:40px 20px 28px}
+}
+
+/* MOBILE NAV activa (≤768px) — drawer slide-down + hamburger */
+@media (max-width:768px){
+  nav{padding:0 16px;height:58px}
+  .logo-img{height:34px}
+  .logo-suf{font-size:.75rem;padding:2px 5px}
+
+  /* Esconde o cart desktop (que vive dentro do drawer), mostra o mobile à direita */
+  .btn-carrito-desktop{display:none}
+  .btn-carrito-mobile{display:inline-flex;align-items:center;gap:4px;padding:8px 10px;margin-left:auto;margin-right:8px;font-size:1.05rem;background:var(--fundo2);border:1px solid var(--borde);border-radius:10px;cursor:pointer;color:var(--texto)}
+  .btn-carrito-mobile .badge-carrito{font-size:.7rem;padding:1px 6px}
+
+  /* Hamburger */
+  .nav-toggle{display:flex;flex-direction:column;justify-content:center;gap:5px;width:40px;height:40px;background:var(--fundo2);border:1px solid var(--borde);border-radius:10px;cursor:pointer;padding:0 10px;transition:border-color .2s}
+  .nav-toggle:hover{border-color:var(--verde)}
+  .nav-toggle span{display:block;height:2px;width:20px;background:var(--texto);border-radius:2px;transition:transform .25s, opacity .2s}
+  .nav-toggle.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+  .nav-toggle.open span:nth-child(2){opacity:0}
+  .nav-toggle.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+  /* Drawer: nav-links passa a painel vertical que desliza de cima */
+  .nav-links{position:fixed;top:58px;left:0;right:0;flex-direction:column;align-items:stretch;gap:4px;padding:20px 16px 24px;background:rgba(2,16,22,.97);backdrop-filter:blur(18px);border-bottom:1px solid rgba(196,154,79,.30);box-shadow:0 18px 40px -8px rgba(0,0,0,.65);transform:translateY(-120%);transition:transform .3s cubic-bezier(.2,.8,.2,1);z-index:99;max-height:calc(100vh - 58px);overflow-y:auto}
+  .nav-links.open{transform:translateY(0)}
+  .nav-link{width:100%;text-align:left;padding:14px 16px;font-size:1rem;border-radius:10px}
+  .nav-link:hover{background:var(--verde-t);color:var(--verde)}
+  .lang-toggle{margin:0 0 12px;width:100%;justify-content:center}
+  .lang-btn{flex:1;padding:8px 12px}
+  /* Cart dentro do drawer fica escondido — o mobile já está fora */
+}
+
+/* PHONE (≤600px) — hero, grid, cards, pills */
+@media (max-width:600px){
+  .banner-info{flex-wrap:wrap;gap:12px 18px;font-size:.75rem;padding:8px 16px}
+
+  /* Hero */
+  .hero{padding:40px 16px 32px}
+  .hero-logo{max-width:min(420px,88vw);margin:0 auto 22px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.6)) drop-shadow(0 16px 30px rgba(0,0,0,.7)) drop-shadow(0 0 25px rgba(0,232,122,.18))}
+  .hero-badge{font-size:.72rem;padding:5px 12px;margin-bottom:16px}
+  .hero h1{font-size:clamp(1.7rem,7vw,2.4rem);line-height:1.2;letter-spacing:-.3px;margin-bottom:14px}
+  .hero p{font-size:.95rem;margin-bottom:24px;padding:0 6px}
+  .hero-stats{gap:20px 28px;margin-bottom:28px}
+  .stat-num{font-size:1.5rem}
+  .stat-lbl{font-size:.72rem}
+
+  /* Filtros */
+  .filtros{padding:0 12px 20px;gap:6px}
+  .btn-filtro{padding:6px 14px;font-size:.78rem}
+
+  /* Grid */
+  .grid-kits{grid-template-columns:1fr;padding:0 12px 48px;gap:14px;max-width:520px}
+  .tarjeta-img{height:160px}
+  .tarjeta-cuerpo{padding:16px;gap:10px}
+  .tarjeta-titulo{font-size:1rem}
+  .tarjeta-desc{font-size:.82rem}
+  .tarjeta-pie{padding:14px 16px}
+  .precio{font-size:1.2rem}
+
+  /* Pill Parte do pack — stack horizontal, wrap se necessário */
+  .tarjeta-packs{flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:6px;padding:8px 12px}
+  .pack-ref{font-size:.66rem;padding:3px 9px}
+
+  /* Detalhe */
+  .detalle-header{padding:20px 16px 0}
+  .detalle-titulo{font-size:1.5rem}
+  .detalle-grid{padding:0 16px 48px;gap:20px}
+  .panel-lateral{position:static}
+  .tarjeta-compra{padding:20px}
+  .precio-grande{font-size:2rem}
+  .bloque-codigo{font-size:.75rem;padding:14px}
+  .tabla-hw{font-size:.78rem}
+  .tabla-hw th,.tabla-hw td{padding:8px 10px}
+
+  /* Carrinho — item stacka em 2 linhas (info+preço em cima, controles em baixo) */
+  .carrito-contenido{padding:24px 16px 48px}
+  .carrito-titulo,.checkout-titulo{font-size:1.4rem;margin-bottom:20px}
+  .carrito-item{flex-wrap:wrap;gap:10px 12px;padding:14px}
+  .carrito-item-emoji{font-size:1.6rem;min-width:40px}
+  .carrito-item-info{flex:1 1 calc(100% - 60px);min-width:0}
+  .carrito-item-nombre{font-size:.92rem}
+  .carrito-item-controles{flex:1 1 auto;justify-content:space-between;width:100%;padding-top:6px;border-top:1px dashed rgba(26,74,50,.6)}
+  .btn-qty{width:36px;height:36px}
+  .carrito-item-precio{font-size:1rem;min-width:0}
+  .carrito-resumen{padding:18px}
+
+  /* Checkout */
+  .checkout-contenido{padding:24px 16px 48px}
+  .checkout-seccion{padding:18px}
+  .metodos-pago{grid-template-columns:1fr}
+
+  /* Como Funciona e Aprender */
+  .como-funciona-contenido,.aprender-contenido{padding:32px 16px 48px}
+  .cf-titulo{font-size:1.7rem}
+  .cf-paso{flex-direction:column;gap:12px;padding:18px}
+  .cf-paso-num{font-size:2rem;min-width:0}
+  .niveles-grid{grid-template-columns:1fr;gap:10px}
+
+  /* Combos (já tinham 1fr) */
+  .combos-hero{margin-bottom:28px}
+  .combos-wrap{padding:20px 14px 48px}
+  .combo-foot{flex-wrap:wrap;gap:10px;justify-content:space-between}
+  .combo-btn{flex:1 1 auto;min-width:120px;text-align:center}
+
+  /* Confirmação */
+  .confirmacion-contenido{padding:48px 16px}
+  .confirmacion-titulo{font-size:1.6rem}
+
+  /* Footer */
+  footer{padding:32px 16px 24px}
+  .footer-grid{gap:28px;margin-bottom:28px}
+  .footer-bottom{flex-direction:column;align-items:flex-start;font-size:.72rem}
+
+  /* Toast ocupa largura do viewport */
+  .toast{left:12px;right:12px;bottom:16px;max-width:none}
+}
+
+/* PHONE apertado (≤400px) — últimos retoques para iPhone SE / Android compactos */
+@media (max-width:400px){
+  .banner-info{gap:8px 14px;font-size:.7rem}
+  .logo-suf{display:none}
+  .hero h1{font-size:1.55rem}
+  .hero-stats{gap:14px 20px}
+  .stat-num{font-size:1.3rem}
+  .tarjeta-img{height:140px}
+  .precio{font-size:1.1rem}
+  .btn-carrito-tarjeta{padding:8px 14px;font-size:.78rem}
+  .tarjeta-packs{gap:5px;padding:6px 10px}
+  .pack-ref{font-size:.62rem;padding:2px 8px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAVEGAÇÃO -->
+<nav id="nav">
+  <div class="logo" onclick="mostrarPagina('home')">
+    <img src="images/logo_header.webp" alt="Kidtrónica" class="logo-img">
+    <span id="logo-sufixo" class="logo-suf">.pt</span>
+  </div>
+  <button class="btn-carrito btn-carrito-mobile" onclick="mostrarPagina('carrito')" aria-label="Carrinho">
+    🛒
+    <span class="badge-carrito" id="badge-carrito-mobile">0</span>
+  </button>
+  <button class="nav-toggle" id="nav-toggle" onclick="toggleMenuMobile()" aria-label="Menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="nav-links" id="nav-links">
+    <div class="lang-toggle">
+      <button class="lang-btn activo" id="btn-pt" onclick="setLang('pt')">🇵🇹 PT</button>
+      <button class="lang-btn" id="btn-es" onclick="setLang('es')">🇪🇸 ES</button>
+    </div>
+    <button class="nav-link" id="nav-projetos" onclick="mostrarPagina('home')">Projectos</button>
+    <button class="nav-link" id="nav-combos" onclick="mostrarPagina('combos')">Combos</button>
+    <button class="nav-link" id="nav-como" onclick="mostrarPagina('como-funciona')">Como Funciona</button>
+    <button class="nav-link" id="nav-aprender" onclick="mostrarPagina('aprender')">Aprender</button>
+    <button class="btn-carrito btn-carrito-desktop" onclick="mostrarPagina('carrito')">
+      🛒 <span id="nav-carrito">Carrinho</span>
+      <span class="badge-carrito" id="badge-carrito">0</span>
+    </button>
+  </div>
+</nav>
+<div class="nav-backdrop" id="nav-backdrop" onclick="toggleMenuMobile()"></div>
+
+<!-- BANNER -->
+<div class="banner-info" id="banner-info"></div>
+
+<!-- HOME -->
+<div class="pagina activa" id="pagina-home">
+  <section class="hero">
+    <svg class="hero-bg" viewBox="0 0 1200 400" preserveAspectRatio="xMidYMid slice">
+      <defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#00e87a" stroke-width="0.5"/>
+      </pattern></defs>
+      <rect width="100%" height="100%" fill="url(#grid)"/>
+      <line x1="0" y1="80" x2="300" y2="80" stroke="#00e87a" stroke-width="2"/>
+      <line x1="300" y1="80" x2="300" y2="200" stroke="#00e87a" stroke-width="2"/>
+      <circle cx="300" cy="200" r="6" fill="none" stroke="#00e87a" stroke-width="2"/>
+    </svg>
+    <img src="images/logo_hero.webp" alt="Kidtrónica" class="hero-logo">
+    <div class="hero-badge" id="hero-badge">⚡ Electrónica educativa · Portugal</div>
+    <h1 id="hero-h1">Aprende electrónica<br><em>fazendo projectos reais</em></h1>
+    <p id="hero-p"></p>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num">35</div><div class="stat-lbl" id="stat-kits">Kits disponíveis</div></div>
+      <div class="stat"><div class="stat-num">5</div><div class="stat-lbl" id="stat-niveis">Níveis de dificuldade</div></div>
+      <div class="stat"><div class="stat-num">8–18+</div><div class="stat-lbl" id="stat-idades">Anos de idade</div></div>
+      <div class="stat"><div class="stat-num">€22</div><div class="stat-lbl" id="stat-desde">A partir de</div></div>
+    </div>
+  </section>
+  <div class="packs-hl" id="packs-hl"></div>
+  <div class="filtros" id="filtros"></div>
+  <div id="pack-filtro-info-wrap"></div>
+  <div class="grid-kits" id="grid-kits"></div>
+</div>
+
+<!-- DETALHE -->
+<div class="pagina" id="pagina-detalle">
+  <div class="detalle-header">
+    <button class="btn-volver" id="btn-volver" onclick="mostrarPagina('home')">← Voltar</button>
+    <div id="detalle-contenido"></div>
+  </div>
+</div>
+
+<!-- CARRINHO -->
+<div class="pagina" id="pagina-carrito">
+  <div class="carrito-contenido">
+    <h2 class="carrito-titulo" id="carrito-titulo">🛒 O teu carrinho</h2>
+    <div id="carrito-items"></div>
+  </div>
+</div>
+
+<!-- CHECKOUT -->
+<div class="pagina" id="pagina-checkout">
+  <div class="checkout-contenido">
+    <h2 class="checkout-titulo" id="checkout-titulo">Finalizar compra</h2>
+    <div class="checkout-seccion">
+      <div class="checkout-seccion-titulo" id="ch-entrega-titulo">📦 Morada de entrega</div>
+      <div class="campo-grupo">
+        <div class="campo"><label id="lbl-nome">Nome</label><input type="text" id="ch-nome" placeholder="Maria"></div>
+        <div class="campo"><label id="lbl-apelido">Apelido</label><input type="text" id="ch-apelido" placeholder="Silva"></div>
+      </div>
+      <div class="campo-grupo un-col">
+        <div class="campo"><label id="lbl-morada">Morada</label><input type="text" id="ch-morada"></div>
+      </div>
+      <div class="campo-grupo">
+        <div class="campo"><label id="lbl-cp">Código Postal</label><input type="text" id="ch-cp" placeholder="1000-001"></div>
+        <div class="campo"><label id="lbl-cidade">Cidade</label><input type="text" id="ch-cidade" placeholder="Lisboa"></div>
+      </div>
+      <div class="campo-grupo">
+        <div class="campo"><label id="lbl-regiao">Distrito</label>
+          <select id="ch-regiao"><option value=""></option></select>
+        </div>
+        <div class="campo"><label id="lbl-tel">Telemóvel</label><input type="tel" id="ch-tel" placeholder="+351 912 345 678"></div>
+      </div>
+      <div class="campo-grupo un-col">
+        <div class="campo"><label id="lbl-email">Email</label><input type="email" id="ch-email" placeholder="maria@email.com"></div>
+      </div>
+    </div>
+    <div class="checkout-seccion">
+      <div class="checkout-seccion-titulo" id="ch-pag-titulo">💳 Método de pagamento</div>
+      <div class="metodos-pago" id="metodos-pago"></div>
+    </div>
+    <div class="checkout-seccion" id="checkout-resumen">
+      <div class="checkout-seccion-titulo" id="ch-resumo-titulo">📋 Resumo da encomenda</div>
+      <div id="checkout-resumen-items"></div>
+    </div>
+    <p style="font-size:.78rem;color:var(--texto3);margin-top:8px;text-align:center;" id="iva-aviso"></p>
+    <button class="btn-finalizar" id="btn-finalizar" onclick="finalizarCompra()">✅ Confirmar encomenda</button>
+  </div>
+</div>
+
+<!-- CONFIRMAÇÃO -->
+<div class="pagina" id="pagina-confirmacion">
+  <div class="confirmacion-contenido">
+    <div class="confirmacion-icono">🎉</div>
+    <h2 class="confirmacion-titulo" id="conf-titulo">Encomenda confirmada!</h2>
+    <div class="confirmacion-ref" id="conf-ref">KT-PT-000000</div>
+    <p class="confirmacion-info" id="conf-info"></p>
+    <button class="btn-comprar" id="conf-btn" onclick="mostrarPagina('home')" style="max-width:280px;margin:0 auto;display:block;">Continuar a explorar kits</button>
+  </div>
+</div>
+
+<!-- COMO FUNCIONA -->
+<div class="pagina" id="pagina-como-funciona">
+  <div class="como-funciona-contenido">
+    <h2 class="cf-titulo" id="cf-titulo"></h2>
+    <p class="cf-subtitulo" id="cf-sub"></p>
+    <div class="cf-pasos" id="cf-pasos"></div>
+    <h3 style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.2rem;margin-bottom:20px;" id="cf-niveis-titulo"></h3>
+    <div class="niveles-grid" id="cf-niveis"></div>
+    <div class="checkout-seccion" style="margin-top:0;">
+      <div class="checkout-seccion-titulo" id="cf-incl-titulo"></div>
+      <div class="incl-lista" id="cf-incl"></div>
+    </div>
+  </div>
+</div>
+
+<!-- APRENDER -->
+<div class="pagina" id="pagina-aprender">
+  <div class="aprender-contenido">
+    <h2 class="cf-titulo" id="ap-titulo"></h2>
+    <p class="cf-subtitulo" id="ap-sub"></p>
+    <div id="ap-conceitos"></div>
+  </div>
+</div>
+
+<!-- COMBOS -->
+<div class="pagina" id="pagina-combos">
+  <div class="combos-wrap" id="combos-wrap"></div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid" id="footer-grid"></div>
+  <div class="footer-bottom">
+    <span id="footer-bottom-l"></span>
+    <span id="footer-bottom-r"></span>
+  </div>
+</footer>
+
+<div class="toast" id="toast">
+  <span class="toast-icon">✅</span>
+  <span id="toast-texto">Kit adicionado ao carrinho</span>
+</div>
+
+<script>
+// =====================================================
+// DADOS E I18N
+// =====================================================
+const KITS = [{"id": 1, "nivel": 1, "idade": "8+", "preco": 22, "emoji": "💡", "img": "images/kit01_led_pisca.png", "chips": ["ATmega328P", "LED", "Resistência"], "supervision": false, "hw": [{"comp": "LED (ânodo)", "pin": "D13", "tipo": "sig"}, {"comp": "LED (cátodo)", "pin": "GND", "tipo": "gnd"}, {"comp": "Resistência 220Ω", "pin": "D13 → LED", "tipo": "sig"}], "pt": {"nome": "LED Pisca-Pisca", "desc": "O teu primeiro projecto electrónico. Aprende a controlar LEDs com o microcontrolador e cria padrões de luz programáveis.", "passos": [{"t": "Instalar o IDE", "d": "Descarrega e instala o ambiente de desenvolvimento. Selecciona a placa compatível ATmega328P e a porta COM correcta."}, {"t": "Ligar o LED", "d": "Insere o LED na breadboard. A perna longa (+) vai ao pino 13 através da resistência 220Ω. A perna curta (–) vai ao GND."}, {"t": "Escrever o código", "d": "Copia o sketch de exemplo, modifica o valor do delay() e observa como muda o ritmo de piscar."}, {"t": "Carregar e verificar", "d": "Clica em 'Carregar'. O LED deve piscar a cada segundo. Experimenta mudar o valor do delay!"}], "seguranca": ["Desliga a placa antes de alterar ligações", "Não tocar em componentes enquanto está ligado ao USB", "Guardar peças pequenas fora do alcance de crianças <3 anos"]}, "es": {"nome": "LED Parpadeante", "desc": "Tu primer proyecto electrónico. Aprende a controlar LEDs con el microcontrolador y crea patrones de luz programables.", "passos": [{"t": "Instalar el IDE", "d": "Descarga e instala el entorno de desarrollo. Selecciona la placa compatible ATmega328P y el puerto COM correcto."}, {"t": "Conectar el LED", "d": "Inserta el LED en la breadboard. La pata larga (+) va al pin 13 a través de la resistencia 220Ω. La pata corta (–) va a GND."}, {"t": "Escribir el código", "d": "Copia el sketch de ejemplo, modifica el valor del delay() y observa cómo cambia el ritmo de parpadeo."}, {"t": "Subir y verificar", "d": "Haz clic en 'Subir'. El LED debe parpadear cada segundo. ¡Experimenta cambiando el valor del delay!"}], "seguranca": ["Desconecta la placa antes de cambiar conexiones", "No tocar componentes mientras está conectado al USB", "Guardar piezas pequeñas fuera del alcance de niños <3 años"]}}, {"id": 2, "nivel": 1, "idade": "8+", "preco": 24, "emoji": "🚦", "img": "images/kit02_semaforo.png", "chips": ["ATmega328P", "3× LED", "Resistências"], "supervision": false, "hw": [{"comp": "LED Vermelho/Rojo", "pin": "D13", "tipo": "sig"}, {"comp": "LED Amarelo/Amarillo", "pin": "D12", "tipo": "sig"}, {"comp": "LED Verde", "pin": "D11", "tipo": "sig"}, {"comp": "Resistências/Resistencias", "pin": "GND", "tipo": "gnd"}], "pt": {"nome": "Semáforo", "desc": "Constrói um semáforo funcional com LEDs vermelho, amarelo e verde. Aprende sequências temporais e controlo de pinos.", "passos": [{"t": "Montar os três LEDs", "d": "Insere os três LEDs na breadboard: vermelho (D13), amarelo (D12), verde (D11). Cada um com resistência 220Ω."}, {"t": "Programar a sequência", "d": "A lógica é: verde 5s → amarelo 1s → vermelho 4s. Usa delay() para controlar cada fase."}, {"t": "Adicionar modo pedonal", "d": "Opcional: adiciona um botão para activar o modo pedonal."}], "seguranca": ["Sem riscos específicos", "Adequado a partir dos 8 anos sem supervisão"]}, "es": {"nome": "Semáforo", "desc": "Construye un semáforo funcional con LEDs rojo, amarillo y verde. Aprende secuencias temporales y control de pines.", "passos": [{"t": "Montar los tres LEDs", "d": "Inserta los tres LEDs en la breadboard: rojo (D13), amarillo (D12), verde (D11). Cada uno con resistencia 220Ω."}, {"t": "Programar la secuencia", "d": "La lógica es: verde 5s → amarillo 1s → rojo 4s. Usa delay() para controlar cada fase."}, {"t": "Añadir modo peatonal", "d": "Opcional: añade un botón para activar el modo peatonal."}], "seguranca": ["Sin riesgos específicos", "Apto desde 8 años sin supervisión"]}}, {"id": 3, "nivel": 1, "idade": "8+", "preco": 23, "emoji": "🚸", "img": "images/kit03_semaforo_peoes.jpg", "chips": ["ATmega328P", "5× LED", "Botão", "FSM"], "supervision": false, "hw": [{"comp": "LED verde autos/verde coches", "pin": "D2", "tipo": "sig"}, {"comp": "LED amarelo autos/amarillo coches", "pin": "D3", "tipo": "sig"}, {"comp": "LED vermelho autos/rojo coches", "pin": "D4", "tipo": "sig"}, {"comp": "LED verde peões/peatones", "pin": "D5", "tipo": "sig"}, {"comp": "LED vermelho peões/rojo peatones", "pin": "D6", "tipo": "sig"}, {"comp": "Botão peões/Botón peatones", "pin": "D7", "tipo": "sig"}, {"comp": "5× Resistência 220Ω", "pin": "GND", "tipo": "gnd"}], "pt": {"nome": "Semáforo com Peões", "desc": "Um semáforo inteligente com dois sentidos: automóveis e peões, mais um botão para pedir atravessamento. Introduz máquina de estados e temporização não-bloqueante.", "passos": [{"t": "Montar os 5 LEDs", "d": "3 LEDs para os automóveis (verde D2, amarelo D3, vermelho D4) e 2 LEDs para os peões (verde D5, vermelho D6). Cada LED com resistência 220Ω."}, {"t": "Ligar o botão dos peões", "d": "Botão entre o pino D7 e o GND. Usa INPUT_PULLUP interno — não precisa de resistência extra."}, {"t": "Programar a máquina de estados", "d": "5 estados: AUTO_V, AUTO_A, PEOES_V, PEOES_PISCAR, PEOES_R. Transições controladas por millis() em vez de delay()."}, {"t": "Experimentar e expandir", "d": "Muda tempos, adiciona buzzer sonoro para peões invisuais, ou liga um segundo semáforo para simular um cruzamento."}], "seguranca": ["Sem riscos específicos", "Adequado a partir dos 8 anos com supervisão no primeiro uso"]}, "es": {"nome": "Semáforo con Peatones", "desc": "Un semáforo inteligente con dos direcciones: automóviles y peatones, más un botón para solicitar paso. Introduce máquina de estados y temporización no-bloqueante.", "passos": [{"t": "Montar los 5 LEDs", "d": "3 LEDs para los automóviles (verde D2, amarillo D3, rojo D4) y 2 LEDs para los peatones (verde D5, rojo D6). Cada LED con resistencia 220Ω."}, {"t": "Conectar el botón de peatones", "d": "Botón entre el pin D7 y el GND. Usa INPUT_PULLUP interno — no necesita resistencia extra."}, {"t": "Programar la máquina de estados", "d": "5 estados: AUTO_V, AUTO_A, PEOES_V, PEOES_PISCAR, PEOES_R. Transiciones controladas por millis() en vez de delay()."}, {"t": "Experimentar y ampliar", "d": "Cambia tiempos, añade zumbador para peatones invidentes, o conecta un segundo semáforo para simular un cruce."}], "seguranca": ["Sin riesgos específicos", "Apto desde 8 años con supervisión en el primer uso"]}}, {"id": 4, "nivel": 1, "idade": "8+", "preco": 22, "emoji": "🎹", "img": "images/kit04_piano_buzzer.webp", "chips": ["ATmega328P", "Buzzer", "8× botão"], "supervision": false, "hw": [{"comp": "Buzzer (+)", "pin": "D11", "tipo": "sig"}, {"comp": "Buzzer (–)", "pin": "GND", "tipo": "gnd"}, {"comp": "Botões/Pulsadores", "pin": "D2–D9", "tipo": "sig"}], "pt": {"nome": "Piano Buzzer", "desc": "Cria um piano de 8 notas com botões e buzzer piezoeléctrico. Toca melodias e aprende sobre frequências de som.", "passos": [{"t": "Ligar o buzzer", "d": "Pino + do buzzer ao pino D11, pino – ao GND."}, {"t": "Ligar os botões", "d": "Cada botão entre um pino digital (D2–D9) e GND. Activa INPUT_PULLUP no código."}, {"t": "Atribuir frequências", "d": "Cada tecla corresponde a uma frequência musical: Dó=261Hz, Ré=294Hz, Mi=330Hz..."}], "seguranca": ["Volume seguro para ouvidos infantis", "Não exceder 5V no buzzer"]}, "es": {"nome": "Piano Zumbador", "desc": "Crea un piano de 8 notas con pulsadores y zumbador piezoeléctrico. Toca melodías y aprende sobre frecuencias de sonido.", "passos": [{"t": "Conectar el zumbador", "d": "Pin + del zumbador al pin D11, pin – a GND."}, {"t": "Conectar los pulsadores", "d": "Cada pulsador entre un pin digital (D2–D9) y GND. Activa INPUT_PULLUP en el código."}, {"t": "Asignar frecuencias", "d": "Cada tecla corresponde a una frecuencia musical: Do=261Hz, Re=294Hz, Mi=330Hz..."}], "seguranca": ["Volumen seguro para oídos infantiles", "No superar 5V en el zumbador"]}}, {"id": 5, "nivel": 1, "idade": "8+", "preco": 23, "emoji": "☀️", "img": "images/kit05_sensor_luz.webp", "chips": ["ATmega328P", "LDR", "LED"], "supervision": false, "hw": [{"comp": "LDR (pino 1)", "pin": "5V", "tipo": "pwr"}, {"comp": "LDR (pino 2)", "pin": "A0", "tipo": "sig"}, {"comp": "Resistência 10kΩ", "pin": "A0 → GND", "tipo": "gnd"}, {"comp": "LED (+)", "pin": "D9 (PWM)", "tipo": "sig"}], "pt": {"nome": "Sensor de Luz", "desc": "Mede a intensidade luminosa com uma LDR e controla o brilho de um LED automaticamente. Introdução às entradas analógicas.", "passos": [{"t": "Divisor de tensão com LDR", "d": "Liga a LDR entre 5V e A0. Adiciona uma resistência de 10kΩ entre A0 e GND."}, {"t": "Ler o valor analógico", "d": "analogRead(A0) devolve um valor de 0 a 1023 conforme a luz recebida."}, {"t": "Controlar o LED", "d": "Usa map() para converter 0-1023 em 0-255 e envia para analogWrite() para controlar o brilho."}], "seguranca": ["Sem riscos específicos", "Adequado a partir dos 8 anos"]}, "es": {"nome": "Sensor de Luz", "desc": "Mide la intensidad luminosa con una LDR y controla el brillo de un LED automáticamente. Introducción a las entradas analógicas.", "passos": [{"t": "Divisor de tensión con LDR", "d": "Conecta la LDR entre 5V y A0. Añade una resistencia de 10kΩ entre A0 y GND."}, {"t": "Leer el valor analógico", "d": "analogRead(A0) devuelve un valor de 0 a 1023 según la luz recibida."}, {"t": "Controlar el LED", "d": "Usa map() para convertir 0-1023 a 0-255 y envíalo a analogWrite() para controlar el brillo."}], "seguranca": ["Sin riesgos específicos", "Apto desde 8 años"]}}, {"id": 6, "nivel": 1, "idade": "8+", "preco": 22, "emoji": "🎲", "img": "images/kit06_dado_electronico.webp", "chips": ["ATmega328P", "7× LED", "random()"], "supervision": false, "hw": [{"comp": "7× LED (ânodo)", "pin": "D3–D9", "tipo": "sig"}, {"comp": "7× Resistência 220Ω", "pin": "LED → GND", "tipo": "gnd"}, {"comp": "Botão/Pulsador", "pin": "D2 / GND", "tipo": "sig"}], "pt": {"nome": "Dado Electrónico", "desc": "Simula um dado de 6 faces com 7 LEDs em disposição real. Aprende arrays, números aleatórios e displays de LEDs.", "passos": [{"t": "Dispor os 7 LEDs", "d": "Coloca os LEDs no padrão de um dado real: 1 centro, 2 laterais cima, 2 laterais baixo, 2 centro-laterais."}, {"t": "Cabear o botão", "d": "Botão entre D2 e GND com INPUT_PULLUP. Gera o número ao carregar."}, {"t": "Programar os padrões", "d": "Cada número de 1 a 6 tem um padrão de LEDs acesos. Define um array 2D com os padrões."}], "seguranca": ["Sem riscos específicos", "Peças pequenas — supervisão para <6 anos"]}, "es": {"nome": "Dado Electrónico", "desc": "Simula un dado de 6 caras con 7 LEDs en disposición real. Aprende arrays, números aleatorios y displays de LEDs.", "passos": [{"t": "Disponer los 7 LEDs", "d": "Coloca los LEDs en el patrón de un dado real: 1 centro, 2 laterales arriba, 2 laterales abajo, 2 centro-laterales."}, {"t": "Cablear el pulsador", "d": "Pulsador entre D2 y GND con INPUT_PULLUP. Genera el número al pulsar."}, {"t": "Programar los patrones", "d": "Cada número del 1 al 6 tiene un patrón de LEDs encendidos. Define un array 2D con los patrones."}], "seguranca": ["Sin riesgos específicos", "Piezas pequeñas — supervisión para <6 años"]}}, {"id": 7, "nivel": 1, "idade": "8+", "preco": 24, "emoji": "💨", "img": "images/kit07_ventilador.jpg", "chips": ["ATmega328P", "Motor DC", "NPN", "PWM"], "supervision": true, "hw": [{"comp": "Motor DC (+)", "pin": "5V", "tipo": "pwr"}, {"comp": "Motor DC (–)", "pin": "Colector NPN", "tipo": "sig"}, {"comp": "NPN Base", "pin": "D9 (PWM)", "tipo": "sig"}, {"comp": "Potenciómetro", "pin": "A0", "tipo": "sig"}], "pt": {"nome": "Mini Ventilador", "desc": "Controla um ventilador DC com um transistor e um potenciómetro. Aprende sobre motores, transistores e controlo de velocidade.", "passos": [{"t": "Montar o circuito do transistor", "d": "O transistor NPN actua como interruptor. Base ao pino PWM, colector ao motor+, emissor ao GND."}, {"t": "Adicionar o díodo de protecção", "d": "O díodo em antiparalelo protege o transistor das correntes inversas do motor."}, {"t": "Ler o potenciómetro", "d": "analogRead(A0) de 0 a 1023. Converter com map() para 0-255 para analogWrite()."}], "seguranca": ["⚠️ As pás em movimento podem causar cortes — supervisão adulta recomendada", "Não aproximar dedos ou cabelo das pás enquanto funciona", "Usar em superfície estável"]}, "es": {"nome": "Mini Ventilador", "desc": "Controla un ventilador DC con un transistor y un potenciómetro. Aprende sobre motores, transistores y control de velocidad.", "passos": [{"t": "Montar el circuito del transistor", "d": "El transistor NPN actúa como interruptor. Base al pin PWM, colector al motor+, emisor a GND."}, {"t": "Añadir el diodo de protección", "d": "El diodo en antiparalelo protege el transistor de las corrientes inversas del motor."}, {"t": "Leer el potenciómetro", "d": "analogRead(A0) de 0 a 1023. Convertir con map() a 0-255 para analogWrite()."}], "seguranca": ["⚠️ Las aspas en movimiento pueden causar cortes — supervisión adulta recomendada", "No acercar dedos o cabello a las aspas mientras funciona", "Usar en superficie estable"]}}, {"id": 8, "nivel": 1, "idade": "8+", "preco": 25, "emoji": "🚗", "img": "images/kit08_carrinho_rc.jpg", "chips": ["ATmega328P", "L298N", "IR"], "supervision": true, "hw": [{"comp": "L298N IN1–IN4", "pin": "D2–D5", "tipo": "sig"}, {"comp": "L298N ENA/ENB", "pin": "D9/D10", "tipo": "sig"}, {"comp": "Receptor IR", "pin": "D11", "tipo": "dat"}, {"comp": "L298N VCC", "pin": "9V ext.", "tipo": "pwr"}], "pt": {"nome": "Carrinho RC", "desc": "Constrói um carrinho controlado por controlo remoto IR. Dois motores DC, receptor IR e controlo direccional.", "passos": [{"t": "Montar o chassis", "d": "Fixa os motores ao chassis. Liga os motores à ponte H L298N."}, {"t": "Cabear a ponte H", "d": "IN1/IN2 para motor esquerdo, IN3/IN4 para motor direito. ENA/ENB a pinos PWM."}, {"t": "Programar o IR", "d": "Usa a biblioteca IRremote. Cada botão do comando tem um código hexadecimal único."}], "seguranca": ["⚠️ Carrinho rápido — não usar perto de crianças pequenas", "Desactivar antes de cabear", "Supervisão adulta"]}, "es": {"nome": "Coche RC", "desc": "Construye un coche controlado por control remoto IR. Dos motores DC, receptor IR y control direccional.", "passos": [{"t": "Montar el chasis", "d": "Fija los motores al chasis. Conecta los motores al puente H L298N."}, {"t": "Cablear el puente H", "d": "IN1/IN2 para motor izquierdo, IN3/IN4 para motor derecho. ENA/ENB a pins PWM."}, {"t": "Programar el IR", "d": "Usa la librería IRremote. Cada botón del mando tiene un código hexadecimal único."}], "seguranca": ["⚠️ Coche rápido — no usar cerca de niños pequeños", "Desactivar antes de cablear", "Supervisión adulta"]}}, {"id": 9, "nivel": 1, "idade": "8+", "preco": 23, "emoji": "🌱", "img": "images/kit09_jardim_solar.jpg", "chips": ["Solar", "TP4056", "LDR", "autónomo"], "supervision": false, "hw": [{"comp": "Painel solar", "pin": "TP4056 IN+/–", "tipo": "pwr"}, {"comp": "Bateria LiPo", "pin": "TP4056 BAT+/–", "tipo": "pwr"}, {"comp": "LDR", "pin": "Divisor tensão", "tipo": "sig"}, {"comp": "LED branco", "pin": "Colector NPN", "tipo": "sig"}], "pt": {"nome": "Jardim Solar", "desc": "Sistema de iluminação automático para plantas. LED que acende ao escurecer, alimentado por painel solar + bateria.", "passos": [{"t": "Instalar o carregador solar", "d": "O módulo TP4056 carrega a bateria LiPo do painel solar. Liga painel a IN+/IN– e bateria a BAT+/BAT–."}, {"t": "Circuito de detecção de luz", "d": "LDR e resistência formam um divisor de tensão. Mais escuridão → maior tensão → transistor conduz → LED ON."}, {"t": "Sem microcontrolador", "d": "Este kit é completamente analógico — excelente introdução à electrónica sem programação."}], "seguranca": ["Sem riscos específicos com a bateria LiPo incluída", "Não curto-circuitar a bateria LiPo"]}, "es": {"nome": "Jardín Solar", "desc": "Sistema de iluminación automático para plantas. LED que se enciende al oscurecer, alimentado por panel solar + batería.", "passos": [{"t": "Instalar el cargador solar", "d": "El módulo TP4056 carga la batería LiPo desde el panel solar. Conecta panel a IN+/IN– y batería a BAT+/BAT–."}, {"t": "Circuito de detección de luz", "d": "LDR y resistencia forman un divisor de tensión. Más oscuridad → mayor tensión → transistor conduce → LED ON."}, {"t": "Sin microcontrolador", "d": "Este kit es completamente analógico — excelente introducción a la electrónica sin programación."}], "seguranca": ["Sin riesgos específicos con la batería LiPo incluida", "No cortocircuitar la batería LiPo"]}}, {"id": 10, "nivel": 1, "idade": "8+", "preco": 25, "emoji": "🚙", "img": "images/kit10_carrinho_solar.webp", "chips": ["Solar directo", "Motor DC", "sem código"], "supervision": true, "hw": [{"comp": "Painel solar (+)", "pin": "Motor (+)", "tipo": "pwr"}, {"comp": "Painel solar (–)", "pin": "Motor (–)", "tipo": "gnd"}], "pt": {"nome": "Carrinho Solar", "desc": "Veículo que funciona directamente com energia solar sem baterias. Aprende sobre energia fotovoltaica e motores DC.", "passos": [{"t": "Montar o chassis", "d": "Monta o chassis de plástico seguindo o diagrama. Fixa o motor à tracção traseira."}, {"t": "Instalar o painel solar", "d": "Monta o painel na parte superior do carrinho, orientado para a luz."}, {"t": "Ligar directamente", "d": "Liga o painel directamente ao motor. Mais sol = mais velocidade!"}], "seguranca": ["⚠️ As rodas em movimento podem apanhar dedos", "Supervisão adulta durante a montagem"]}, "es": {"nome": "Coche Solar", "desc": "Vehículo que funciona directamente con energía solar sin baterías. Aprende sobre energía fotovoltaica y motores DC.", "passos": [{"t": "Montar el chasis", "d": "Ensambla el chasis de plástico siguiendo el diagrama. Fija el motor a la tracción trasera."}, {"t": "Instalar el panel solar", "d": "Monta el panel en la parte superior del coche, orientado hacia la luz."}, {"t": "Conectar directo", "d": "Conecta el panel directamente al motor. ¡Más sol = más velocidad!"}], "seguranca": ["⚠️ Las ruedas en movimiento pueden enganchar dedos", "Supervisión adulta durante el montaje"]}}, {"id": 11, "nivel": 1, "idade": "8+", "preco": 22, "emoji": "🏁", "img": "images/kit11_corrida_luz.webp", "chips": ["ATmega328P", "6× LED", "Resistências"], "supervision": false, "hw": [{"comp": "6× LED verde (ânodo)", "pin": "D3–D8", "tipo": "sig"}, {"comp": "6× Resistência 220Ω", "pin": "LED → GND", "tipo": "gnd"}], "pt": {"nome": "Corrida de Luz", "desc": "Cria um efeito de corrida com 6 LEDs em sequência. Aprende a controlar vários LEDs com loops e arrays.", "passos": [{"t": "Montar os 6 LEDs", "d": "Coloca os 6 LEDs verdes em linha na breadboard. Cada um com resistência 220Ω, ligados aos pinos D3 a D8."}, {"t": "Programar a sequência", "d": "Usa um array com os 6 pinos e um ciclo for para acender cada LED em sequência, criando o efeito de corrida."}, {"t": "Ajustar a velocidade", "d": "Modifica o valor do delay() para acelerar ou abrandar a corrida. Experimenta efeitos: ida e volta, aleatório, aceleração progressiva."}], "seguranca": ["Sem riscos específicos", "Adequado a partir dos 8 anos sem supervisão"]}, "es": {"nome": "Carrera de Luz", "desc": "Crea un efecto de carrera con 6 LEDs en secuencia. Aprende a controlar varios LEDs con bucles y arrays.", "passos": [{"t": "Montar los 6 LEDs", "d": "Coloca los 6 LEDs verdes en línea en la breadboard. Cada uno con resistencia 220Ω, conectados a los pines D3 a D8."}, {"t": "Programar la secuencia", "d": "Usa un array con los 6 pines y un bucle for para encender cada LED en secuencia, creando el efecto de carrera."}, {"t": "Ajustar la velocidad", "d": "Modifica el valor del delay() para acelerar o frenar la carrera. Experimenta efectos: ida y vuelta, aleatorio, aceleración progresiva."}], "seguranca": ["Sin riesgos específicos", "Adecuado a partir de 8 años sin supervisión"]}}, {"id": 12, "nivel": 1, "idade": "8+", "preco": 24, "emoji": "✨", "img": "images/kit12_led_magico.webp", "chips": ["ATmega328P", "HC-SR04", "LED"], "supervision": false, "hw": [{"comp": "HC-SR04 (Trig)", "pin": "D10", "tipo": "sig"}, {"comp": "HC-SR04 (Echo)", "pin": "D11", "tipo": "sig"}, {"comp": "HC-SR04 (VCC)", "pin": "5V", "tipo": "pwr"}, {"comp": "HC-SR04 (GND)", "pin": "GND", "tipo": "gnd"}, {"comp": "LED verde (+)", "pin": "D9 (PWM)", "tipo": "sig"}, {"comp": "Resistência 220Ω", "pin": "LED → GND", "tipo": "gnd"}], "pt": {"nome": "LED Mágico", "desc": "Controla o brilho de um LED com a mão, sem tocar em nada! O sensor ultrassónico mede a distância e ajusta a intensidade.", "passos": [{"t": "Ligar o sensor HC-SR04", "d": "Liga Trig ao D10, Echo ao D11, VCC a 5V e GND ao GND. O sensor mede distâncias com ondas sonoras."}, {"t": "Ligar o LED", "d": "Insere o LED na breadboard com resistência 220Ω. Liga ao pino D9 (PWM) para controlo de brilho."}, {"t": "Programar o efeito mágico", "d": "Usa pulseIn() para ler a distância. Converte com map() de 5-30cm para 0-255 de brilho. Quanto mais perto a mão, mais forte o LED!"}], "seguranca": ["Sem riscos específicos", "Adequado a partir dos 8 anos sem supervisão"]}, "es": {"nome": "LED Mágico", "desc": "Controla el brillo de un LED con la mano, ¡sin tocar nada! El sensor ultrasónico mide la distancia y ajusta la intensidad.", "passos": [{"t": "Conectar el sensor HC-SR04", "d": "Conecta Trig al D10, Echo al D11, VCC a 5V y GND a GND. El sensor mide distancias con ondas sonoras."}, {"t": "Conectar el LED", "d": "Inserta el LED en la breadboard con resistencia 220Ω. Conéctalo al pin D9 (PWM) para control de brillo."}, {"t": "Programar el efecto mágico", "d": "Usa pulseIn() para leer la distancia. Convierte con map() de 5-30cm a 0-255 de brillo. ¡Cuanto más cerca la mano, más brilla el LED!"}], "seguranca": ["Sin riesgos específicos", "Adecuado a partir de 8 años sin supervisión"]}}, {"id": 13, "nivel": 1, "idade": "8+", "preco": 23, "emoji": "🌈", "img": "images/kit13_led_rgb.webp", "chips": ["ATmega328P", "LED RGB", "3× Potenciómetro"], "supervision": false, "hw": [{"comp": "LED RGB (R)", "pin": "D9 (PWM)", "tipo": "sig"}, {"comp": "LED RGB (G)", "pin": "D10 (PWM)", "tipo": "sig"}, {"comp": "LED RGB (B)", "pin": "D11 (PWM)", "tipo": "sig"}, {"comp": "LED RGB (cátodo)", "pin": "GND", "tipo": "gnd"}, {"comp": "3× Resistência 220Ω", "pin": "D9/D10/D11 → LED", "tipo": "sig"}, {"comp": "Potenciómetro R", "pin": "A0", "tipo": "sig"}, {"comp": "Potenciómetro G", "pin": "A1", "tipo": "sig"}, {"comp": "Potenciómetro B", "pin": "A2", "tipo": "sig"}], "pt": {"nome": "LED RGB: Mistura de Cores", "desc": "Mistura vermelho, verde e azul com três potenciómetros para criar qualquer cor. Aprende como funcionam as cores aditivas.", "passos": [{"t": "Montar o LED RGB", "d": "O LED RGB tem 4 pernas: cátodo comum (a mais longa) ao GND. As outras três vão aos pinos D9, D10, D11 (PWM) com resistência 220Ω cada."}, {"t": "Ligar os potenciómetros", "d": "Cada potenciómetro vai entre 5V e GND, com o pino central ligado a A0 (R), A1 (G) e A2 (B)."}, {"t": "Programar a mistura", "d": "Lê os 3 potenciómetros com analogRead(), converte 0-1023 para 0-255 com map(), e envia para analogWrite(). Roda os botões para criar a tua cor!"}], "seguranca": ["Sem riscos específicos", "Adequado a partir dos 8 anos sem supervisão"]}, "es": {"nome": "LED RGB: Mezcla de Colores", "desc": "Mezcla rojo, verde y azul con tres potenciómetros para crear cualquier color. Aprende cómo funcionan los colores aditivos.", "passos": [{"t": "Montar el LED RGB", "d": "El LED RGB tiene 4 patas: cátodo común (la más larga) a GND. Las otras tres van a los pines D9, D10, D11 (PWM) con resistencia 220Ω cada una."}, {"t": "Conectar los potenciómetros", "d": "Cada potenciómetro va entre 5V y GND, con el pin central conectado a A0 (R), A1 (G) y A2 (B)."}, {"t": "Programar la mezcla", "d": "Lee los 3 potenciómetros con analogRead(), convierte 0-1023 a 0-255 con map(), y envía a analogWrite(). ¡Gira los botones para crear tu color!"}], "seguranca": ["Sin riesgos específicos", "Adecuado a partir de 8 años sin supervisión"]}}, {"id": 14, "nivel": 2, "idade": "10+", "preco": 29, "emoji": "🌡️", "img": "images/kit14_termometro_lcd.webp", "chips": ["ATmega328P", "DHT22", "LCD I2C"], "supervision": false, "hw": [{"comp": "LCD SDA", "pin": "A4", "tipo": "i2c"}, {"comp": "LCD SCL", "pin": "A5", "tipo": "i2c"}, {"comp": "DHT22 DATA", "pin": "D2", "tipo": "dat"}, {"comp": "VCC", "pin": "5V", "tipo": "pwr"}], "pt": {"nome": "Termómetro LCD", "desc": "Mede temperatura e humidade com sensor DHT22 e mostra os dados em ecrã LCD 16×2. Introdução à comunicação I²C.", "passos": [{"t": "Ligar o LCD por I2C", "d": "O módulo I2C reduz a cablagem a apenas 4 fios: VCC, GND, SDA (A4), SCL (A5)."}, {"t": "Ligar DHT22", "d": "Pino data do DHT22 ao D2 com resistência pull-up de 10kΩ a 3.3V."}, {"t": "Mostrar dados", "d": "Actualiza o ecrã a cada 2 segundos com temperatura (°C) e humidade (%)."}], "seguranca": ["Sem riscos específicos", "Adequado a partir dos 10 anos"]}, "es": {"nome": "Termómetro LCD", "desc": "Mide temperatura y humedad con sensor DHT22 y muestra los datos en pantalla LCD 16×2. Introducción a comunicación I²C.", "passos": [{"t": "Conectar el LCD por I2C", "d": "El módulo I2C reduce el cableado a solo 4 cables: VCC, GND, SDA (A4), SCL (A5)."}, {"t": "Conectar DHT22", "d": "Pin data del DHT22 al D2 con resistencia pull-up de 10kΩ a 3.3V."}, {"t": "Mostrar datos", "d": "Actualiza la pantalla cada 2 segundos con temperatura (°C) y humedad (%)."}], "seguranca": ["Sin riesgos específicos", "Apto desde 10 años"]}}, {"id": 15, "nivel": 2, "idade": "10+", "preco": 28, "emoji": "📏", "img": "images/kit15_regua_ultrassonica.webp", "chips": ["ATmega328P", "HC-SR04", "LCD"], "supervision": false, "hw": [{"comp": "HC-SR04 TRIG", "pin": "D9", "tipo": "sig"}, {"comp": "HC-SR04 ECHO", "pin": "D10", "tipo": "sig"}, {"comp": "LCD SDA/SCL", "pin": "A4/A5", "tipo": "i2c"}, {"comp": "Buzzer", "pin": "D8", "tipo": "sig"}], "pt": {"nome": "Régua Ultrassónica", "desc": "Mede distâncias de 2 a 400 cm com sensor HC-SR04. Mostra o resultado em LCD e emite bipes de alerta de proximidade.", "passos": [{"t": "Ligar HC-SR04", "d": "TRIG ao D9, ECHO ao D10. O sensor emite uma rajada ultrassónica e mede o tempo de eco."}, {"t": "Calcular distância", "d": "distância = (duração × 0.0343) / 2 — velocidade do som à temperatura ambiente."}, {"t": "Alerta sonoro", "d": "Se a distância for < 20 cm, activa o buzzer com frequência proporcional à proximidade."}], "seguranca": ["Sensor ultrassónico inofensivo", "Adequado a partir dos 10 anos"]}, "es": {"nome": "Regla Ultrasónica", "desc": "Mide distancias de 2 a 400 cm con sensor HC-SR04. Muestra el resultado en LCD y emite pitidos de alerta de proximidad.", "passos": [{"t": "Conectar HC-SR04", "d": "TRIG al D9, ECHO al D10. El sensor emite una ráfaga ultrasónica y mide el tiempo de eco."}, {"t": "Calcular distancia", "d": "distancia = (duración × 0.0343) / 2 — velocidad del sonido a temperatura ambiente."}, {"t": "Alerta sonora", "d": "Si la distancia es < 20 cm, activa el zumbador con frecuencia proporcional a la proximidad."}], "seguranca": ["Sensor ultrasónico inofensivo", "Apto desde 10 años"]}}, {"id": 16, "nivel": 2, "idade": "10+", "preco": 27, "emoji": "🔢", "img": "images/kit16_contador_7seg.webp", "chips": ["ATmega328P", "7-Seg", "BCD"], "supervision": false, "hw": [{"comp": "Seg A–G", "pin": "D2–D8", "tipo": "sig"}, {"comp": "Cátodo díg. 1", "pin": "D12", "tipo": "gnd"}, {"comp": "Cátodo díg. 2", "pin": "D13", "tipo": "gnd"}, {"comp": "Botões", "pin": "A0/A1", "tipo": "sig"}], "pt": {"nome": "Contador 7 Segmentos", "desc": "Display de 7 segmentos com contador 0–99, botões cima/baixo e modo relógio. Aprende multiplexagem e BCD.", "passos": [{"t": "Cabear o display", "d": "Cada segmento (A–G) ligado a um pino digital através de resistência 220Ω."}, {"t": "Multiplexagem", "d": "Para 2 dígitos, alterna rapidamente entre ambos (>100Hz) para parecerem acesos em simultâneo."}, {"t": "Lógica do contador", "d": "Botão + soma, botão – subtrai. Limites 0 e 99 com controlo de overflow."}], "seguranca": ["Sem riscos específicos"]}, "es": {"nome": "Contador 7 Segmentos", "desc": "Display de 7 segmentos con contador 0–99, botones arriba/abajo y modo reloj. Aprende multiplexado y BCD.", "passos": [{"t": "Cablear el display", "d": "Cada segmento (A–G) conectado a un pin digital a través de resistencia 220Ω."}, {"t": "Multiplexado", "d": "Para 2 dígitos, alterna rápidamente entre ambos (>100Hz) para que parezcan encendidos a la vez."}, {"t": "Lógica del contador", "d": "Botón + suma, botón – resta. Límites 0 y 99 con control de overflow."}], "seguranca": ["Sin riesgos específicos"]}}, {"id": 17, "nivel": 2, "idade": "10+", "preco": 32, "emoji": "🕹️", "img": "images/kit17_servo_joystick.webp", "chips": ["ATmega328P", "SG90", "Joystick"], "supervision": false, "hw": [{"comp": "Servo sinal", "pin": "D9", "tipo": "sig"}, {"comp": "Joystick VRx", "pin": "A0", "tipo": "sig"}, {"comp": "Joystick VRy", "pin": "A1", "tipo": "sig"}, {"comp": "VCC", "pin": "5V", "tipo": "pwr"}], "pt": {"nome": "Servo + Joystick", "desc": "Controla um servomotor com um joystick analógico. Aprende sobre servos, PWM e leitura de eixos X/Y.", "passos": [{"t": "Ligar o servo", "d": "Servo: vermelho a 5V, castanho ao GND, laranja (sinal) ao D9."}, {"t": "Ligar o joystick", "d": "VRx a A0, VRy a A1, SW (botão) a D2. VCC a 5V, GND a GND."}, {"t": "Mapear eixos para ângulo", "d": "map(analogRead(A0), 0, 1023, 0, 180) converte o eixo em ângulo de servo."}], "seguranca": ["O servo SG90 tem par limitado — seguro para uso infantil", "Não bloquear o servo mecanicamente"]}, "es": {"nome": "Servo + Joystick", "desc": "Controla un servomotor con un joystick analógico. Aprende sobre servos, PWM y lectura de ejes X/Y.", "passos": [{"t": "Conectar el servo", "d": "Servo: rojo a 5V, marrón a GND, naranja (señal) a D9."}, {"t": "Conectar el joystick", "d": "VRx a A0, VRy a A1, SW (botón) a D2. VCC a 5V, GND a GND."}, {"t": "Mapear ejes a ángulo", "d": "map(analogRead(A0), 0, 1023, 0, 180) convierte el eje en ángulo de servo."}], "seguranca": ["El servo SG90 tiene par limitado — seguro para uso infantil", "No bloquear el servo mecánicamente"]}}, {"id": 18, "nivel": 2, "idade": "10+", "preco": 30, "emoji": "🚨", "img": "images/kit18_alarme_pir.webp", "chips": ["ATmega328P", "PIR", "Buzzer"], "supervision": false, "hw": [{"comp": "PIR OUT", "pin": "D2", "tipo": "sig"}, {"comp": "LED vermelho/rojo", "pin": "D13", "tipo": "sig"}, {"comp": "Buzzer", "pin": "D8", "tipo": "sig"}, {"comp": "PIR VCC", "pin": "5V", "tipo": "pwr"}], "pt": {"nome": "Alarme PIR", "desc": "Sistema de alarme com sensor de movimento PIR, LED de alerta e buzzer. Aprende sobre sensores passivos de infravermelhos.", "passos": [{"t": "Ligar o PIR", "d": "OUT do PIR ao D2, VCC a 5V, GND ao GND. Ajusta a sensibilidade e o temporizador com os potenciómetros do módulo."}, {"t": "Lógica de alarme", "d": "Quando D2 = HIGH, acende LED e activa buzzer. Inclui temporizador de 10 segundos."}, {"t": "Modo silencioso", "d": "Adiciona um botão para desactivar o alarme sem reiniciar a placa."}], "seguranca": ["Sem riscos específicos", "O sensor PIR emite radiação IV inofensiva"]}, "es": {"nome": "Alarma PIR", "desc": "Sistema de alarma con sensor de movimiento PIR, LED de alerta y zumbador. Aprende sobre sensores pasivos de infrarrojos.", "passos": [{"t": "Conectar el PIR", "d": "OUT del PIR al D2, VCC a 5V, GND a GND. Ajusta la sensibilidad y el temporizador con los potenciómetros del módulo."}, {"t": "Lógica de alarma", "d": "Cuando D2 = HIGH, encender LED y activar zumbador. Incluye temporizador de 10 segundos."}, {"t": "Modo silencioso", "d": "Añade un pulsador para desactivar la alarma sin reiniciar la placa."}], "seguranca": ["Sin riesgos específicos", "El sensor PIR emite radiación IR inofensiva"]}}, {"id": 19, "nivel": 2, "idade": "10+", "preco": 35, "emoji": "🤖", "img": "images/kit19_robot_segue_luz.webp", "chips": ["ATmega328P", "2× LDR", "L298N"], "supervision": true, "hw": [{"comp": "LDR esq./izq.", "pin": "A0", "tipo": "sig"}, {"comp": "LDR dir.", "pin": "A1", "tipo": "sig"}, {"comp": "L298N IN1–IN4", "pin": "D2–D5", "tipo": "sig"}, {"comp": "L298N VCC", "pin": "9V ext.", "tipo": "pwr"}], "pt": {"nome": "Robot Segue Luz", "desc": "Robot autónomo que segue focos de luz usando dois LDRs. Aprende sobre controlo diferencial e tomada de decisões.", "passos": [{"t": "Montar o chassis", "d": "Fixa os dois motores ao chassis com parafusos. Instala os LDRs na frente."}, {"t": "Comparar LDRs", "d": "Se LDR esquerdo detecta mais luz → vira à esquerda. Se LDR direito detecta mais luz → vira à direita."}, {"t": "Calibrar o limiar", "d": "Ajusta o limiar de comparação conforme as condições de luz do ambiente."}], "seguranca": ["⚠️ As rodas em movimento podem apanhar roupa", "Supervisão recomendada"]}, "es": {"nome": "Robot Sigue Luz", "desc": "Robot autónomo que sigue focos de luz usando dos LDRs. Aprende sobre control diferencial y toma de decisiones.", "passos": [{"t": "Montar el chasis", "d": "Fija los dos motores al chasis con tornillos. Instala las LDRs en la parte delantera."}, {"t": "Comparar LDRs", "d": "Si LDR izquierda detecta más luz → gira izquierda. Si LDR derecha detecta más luz → gira derecha."}, {"t": "Calibrar el umbral", "d": "Ajusta el umbral de comparación según las condiciones de luz del entorno."}], "seguranca": ["⚠️ Las ruedas en movimiento pueden enganchar ropa", "Supervisión recomendada"]}}, {"id": 20, "nivel": 2, "idade": "10+", "preco": 34, "emoji": "🦾", "img": "images/kit20_braco_2dof.webp", "chips": ["ATmega328P", "2× MG90S", "2× POT"], "supervision": false, "hw": [{"comp": "Servo base", "pin": "D9", "tipo": "sig"}, {"comp": "Servo ombro/hombro", "pin": "D10", "tipo": "sig"}, {"comp": "Potenciómetro 1", "pin": "A0", "tipo": "sig"}, {"comp": "Potenciómetro 2", "pin": "A1", "tipo": "sig"}], "pt": {"nome": "Braço 2DOF", "desc": "Braço robótico com 2 graus de liberdade (base + ombro). Controlado por dois potenciómetros. Introdução à robótica.", "passos": [{"t": "Montar a estrutura", "d": "Fixa os servos MG90S à estrutura do braço. O servo de base roda 0–180°, o de ombro 0–90°."}, {"t": "Cabear potenciómetros", "d": "Pot 1 a A0 (controla base), Pot 2 a A1 (controla ombro). Centrais aos pinos analógicos."}, {"t": "Suavizar o movimento", "d": "Usa map() e adiciona uma pequena interpolação para movimentos suaves."}], "seguranca": ["Os servos MG90S têm mais binário — manter dedos afastados do movimento do braço"]}, "es": {"nome": "Brazo 2DOF", "desc": "Brazo robótico con 2 grados de libertad (base + hombro). Controlado por dos potenciómetros. Introducción a la robótica.", "passos": [{"t": "Montar la estructura", "d": "Fija los servos MG90S a la estructura del brazo. El servo de base gira 0–180°, el de hombro 0–90°."}, {"t": "Cablear potenciómetros", "d": "Pot 1 a A0 (controla base), Pot 2 a A1 (controla hombro). Centrales a los pines analógicos."}, {"t": "Suavizar el movimiento", "d": "Usa map() y añade una pequeña interpolación para movimientos suaves."}], "seguranca": ["Los servos MG90S tienen más par — mantener dedos alejados del movimiento del brazo"]}}, {"id": 21, "nivel": 2, "idade": "10+", "preco": 35, "emoji": "⚡", "img": "images/kit21_estacao_solar_offgrid.webp", "chips": ["Solar", "TP4056", "LiPo", "USB"], "supervision": true, "hw": [{"comp": "Painel solar", "pin": "TP4056 IN", "tipo": "pwr"}, {"comp": "Bateria", "pin": "TP4056 BAT", "tipo": "pwr"}, {"comp": "LCD I2C", "pin": "A4/A5", "tipo": "i2c"}, {"comp": "Voltímetro", "pin": "A0/A1", "tipo": "sig"}], "pt": {"nome": "Estação Solar Off-Grid", "desc": "Sistema completo de energia solar: painel, carregador, bateria LiPo e saídas USB. Projecto funcional de energias renováveis.", "passos": [{"t": "Instalar a cadeia solar", "d": "Painel → TP4056 (carga) → Bateria LiPo → Módulo boost 5V → Saída USB."}, {"t": "Monitorizar com LCD", "d": "Mostra tensão do painel, tensão de bateria e estado de carga."}, {"t": "Testar a carga", "d": "Liga um telemóvel à saída USB e carrega-o com energia solar directamente."}], "seguranca": ["⚠️ Não curto-circuitar a bateria LiPo", "A bateria LiPo pode aquecer — não cobrir durante a carga", "Supervisão adulta durante a montagem"]}, "es": {"nome": "Estación Solar Off-Grid", "desc": "Sistema completo de energía solar: panel, cargador, batería LiPo y salidas USB. Proyecto funcional de energías renovables.", "passos": [{"t": "Instalar la cadena solar", "d": "Panel → TP4056 (carga) → Batería LiPo → Módulo boost 5V → Salida USB."}, {"t": "Monitorizar con LCD", "d": "Muestra tensión del panel, tensión de batería y estado de carga."}, {"t": "Probar la carga", "d": "Conecta un móvil a la salida USB y cárgalo con energía solar directamente."}], "seguranca": ["⚠️ No cortocircuitar la batería LiPo", "La batería LiPo puede calentarse — no cubrir durante la carga", "Supervisión adulta durante el montaje"]}}, {"id": 22, "nivel": 3, "idade": "12+", "preco": 42, "emoji": "⏰", "img": "images/kit22_relogio_rtc.webp", "chips": ["ATmega328P", "DS3231", "OLED"], "supervision": false, "hw": [{"comp": "DS3231 SDA", "pin": "A4", "tipo": "i2c"}, {"comp": "DS3231 SCL", "pin": "A5", "tipo": "i2c"}, {"comp": "OLED SDA", "pin": "A4", "tipo": "i2c"}, {"comp": "OLED SCL", "pin": "A5", "tipo": "i2c"}], "pt": {"nome": "Relógio RTC", "desc": "Relógio e calendário com módulo RTC DS3231, ecrã OLED e bateria de reserva. Aprende sobre precisão temporal e barramento I2C.", "passos": [{"t": "Inicializar o RTC", "d": "O DS3231 mantém a hora com bateria CR2032. Comunica por I2C no endereço 0x68."}, {"t": "Mostrar no OLED", "d": "Ecrã OLED 128×64 por I2C. Mostra hora digital grande e data em fonte pequena."}, {"t": "Acertar a hora", "d": "Usa dois botões para acertar horas e minutos. A nova hora é guardada no RTC."}], "seguranca": ["Bateria CR2032 — perigo de ingestão para <6 anos", "Guardar pilhas de botão fora do alcance de crianças pequenas"]}, "es": {"nome": "Reloj Tiempo Real", "desc": "Reloj y calendario con módulo RTC DS3231, pantalla OLED y batería de respaldo. Aprende sobre precisión temporal y buses I2C.", "passos": [{"t": "Inicializar el RTC", "d": "El DS3231 mantiene la hora con batería CR2032. Comunica por I2C a dirección 0x68."}, {"t": "Mostrar en OLED", "d": "Pantalla OLED 128×64 por I2C. Muestra hora digital grande y fecha en fuente pequeña."}, {"t": "Ajustar la hora", "d": "Usa dos pulsadores para ajustar horas y minutos. La nueva hora se guarda en el RTC."}], "seguranca": ["Batería CR2032 — peligro de ingesta para <6 años", "Guardar baterías de botón fuera del alcance de niños pequeños"]}}, {"id": 23, "nivel": 3, "idade": "12+", "preco": 45, "emoji": "🤖", "img": "images/kit23_robot_segue_linha.webp", "chips": ["ATmega328P", "IR reflectivo", "PID"], "supervision": true, "hw": [{"comp": "Sensor IR esq.", "pin": "A0", "tipo": "sig"}, {"comp": "Sensor IR dir.", "pin": "A1", "tipo": "sig"}, {"comp": "L298N IN1–IN4", "pin": "D2–D5", "tipo": "sig"}, {"comp": "L298N ENA/ENB", "pin": "D9/D10", "tipo": "sig"}], "pt": {"nome": "Robot Segue Linha", "desc": "Robot autónomo que segue uma linha preta com 2 sensores TCRT5000 infravermelhos. Controlo PID básico.", "passos": [{"t": "Calibrar sensores IR", "d": "Os TCRT5000 detectam a diferença de reflectância entre a linha preta e o fundo branco."}, {"t": "Controlo proporcional", "d": "Erro = sensor_esq – sensor_dir. Ajusta a velocidade de cada motor em função do erro."}, {"t": "Afinar o PID", "d": "Ajusta Kp, Ki, Kd para conseguir um seguimento suave sem oscilações."}], "seguranca": ["⚠️ Motores em movimento", "Testar no chão — não em mesas", "Supervisão durante os testes"]}, "es": {"nome": "Robot Sigue Línea", "desc": "Robot autónomo que sigue una línea negra con 2 sensores TCRT5000 infrarrojos. Control PID básico.", "passos": [{"t": "Calibrar sensores IR", "d": "Los TCRT5000 detectan la diferencia de reflectancia entre la línea negra y el fondo blanco."}, {"t": "Control proporcional", "d": "Error = sensor_izq – sensor_der. Ajusta la velocidad de cada motor en función del error."}, {"t": "Afinar el PID", "d": "Ajusta Kp, Ki, Kd para conseguir un seguimiento suave sin oscilaciones."}], "seguranca": ["⚠️ Motores en movimiento", "Probar sobre el suelo — no en mesas", "Supervisión durante las pruebas"]}}, {"id": 24, "nivel": 3, "idade": "12+", "preco": 49, "emoji": "🌦️", "img": "images/kit24_estacao_meteo.webp", "chips": ["ATmega2560", "DHT22", "BMP280", "SD"], "supervision": false, "hw": [{"comp": "BMP280 SDA/SCL", "pin": "A4/A5", "tipo": "i2c"}, {"comp": "SD MOSI/MISO/SCK", "pin": "D51/D50/D52", "tipo": "spi"}, {"comp": "SD CS", "pin": "D53", "tipo": "spi"}, {"comp": "MQ-135", "pin": "A0", "tipo": "sig"}], "pt": {"nome": "Estação Meteorológica", "desc": "Mede temperatura, humidade, pressão atmosférica e qualidade do ar. Guarda dados em cartão SD com registo temporal.", "passos": [{"t": "Ligar os sensores", "d": "DHT22 a D2, BMP280 por I2C, MQ-135 a A0. O BMP280 mede pressão e temperatura com alta precisão."}, {"t": "Módulo SD", "d": "Ligar por SPI: MOSI D51, MISO D50, SCK D52, CS D53. Criar ficheiro CSV com cabeçalho."}, {"t": "Formatar os dados", "d": "Cada linha do CSV: timestamp, temperatura, humidade, pressão, CO2. Descarregar com leitor de cartões."}], "seguranca": ["Sem riscos específicos", "O sensor MQ-135 necessita de aquecimento de 24h para se calibrar"]}, "es": {"nome": "Estación Meteorológica", "desc": "Mide temperatura, humedad, presión atmosférica y calidad del aire. Guarda datos en tarjeta SD con registro temporal.", "passos": [{"t": "Conectar los sensores", "d": "DHT22 a D2, BMP280 por I2C, MQ-135 a A0. El BMP280 mide presión y temperatura con alta precisión."}, {"t": "Módulo SD", "d": "Conectar por SPI: MOSI D51, MISO D50, SCK D52, CS D53. Crear fichero CSV con cabecera."}, {"t": "Formatear los datos", "d": "Cada línea del CSV: timestamp, temperatura, humedad, presión, CO2. Descarga con lector de tarjetas."}], "seguranca": ["Sin riesgos específicos", "El sensor MQ-135 necesita calentamiento de 24h para calibrarse"]}}, {"id": 25, "nivel": 3, "idade": "12+", "preco": 45, "emoji": "🪴", "img": "images/kit25_rega_automatica.webp", "chips": ["ATmega328P", "Capacitivo", "Relé", "Bomba"], "supervision": true, "hw": [{"comp": "Sensor humidade", "pin": "A0", "tipo": "sig"}, {"comp": "Relé IN", "pin": "D7", "tipo": "sig"}, {"comp": "Bomba (via relé)", "pin": "5V ext.", "tipo": "pwr"}, {"comp": "LCD I2C", "pin": "A4/A5", "tipo": "i2c"}], "pt": {"nome": "Rega Automática", "desc": "Sistema de rega inteligente com sensor de humidade do solo, bomba de água e controlo por limiares programáveis.", "passos": [{"t": "Instalar sensor no solo", "d": "O sensor capacitivo mede a dieléctrica do solo. Não corroe como os resistivos. Ligar a A0."}, {"t": "Controlar a bomba", "d": "A bomba é controlada com um relé. Quando humidade < limiar → relé ON → bomba ON."}, {"t": "Configurar limiares", "d": "Define LIMIAR_SECO e LIMIAR_MOLHADO. Adiciona histerese para evitar activação frequente."}], "seguranca": ["⚠️ Água e electrónica — manter placa e ligações afastadas da água", "Usar tubagem de silicone incluída", "Supervisão adulta durante a instalação"]}, "es": {"nome": "Riego Automático", "desc": "Sistema de riego inteligente con sensor de humedad del suelo, bomba de agua y control por umbrales programables.", "passos": [{"t": "Instalar sensor en tierra", "d": "El sensor capacitivo mide la dieléctrica del suelo. No se corroe como los resistivos. Conectar a A0."}, {"t": "Controlar la bomba", "d": "La bomba se controla con un relé. Cuando humedad < umbral → relé ON → bomba ON."}, {"t": "Configurar umbrales", "d": "Define UMBRAL_SECO y UMBRAL_MOJADO. Añade histéresis para evitar activación frecuente."}], "seguranca": ["⚠️ Agua y electrónica — mantener placa y conexiones alejadas del agua", "Usar tubería de silicona incluida", "Supervisión adulta durante la instalación"]}}, {"id": 26, "nivel": 3, "idade": "12+", "preco": 52, "emoji": "🌈", "img": "images/kit26_rgb_musical.webp", "chips": ["ATmega2560", "WS2812B", "FFT", "MAX4466"], "supervision": false, "hw": [{"comp": "WS2812B DIN", "pin": "D6", "tipo": "dat"}, {"comp": "Microfone", "pin": "A0", "tipo": "sig"}, {"comp": "WS2812B VCC", "pin": "5V 3A ext.", "tipo": "pwr"}, {"comp": "WS2812B GND", "pin": "GND", "tipo": "gnd"}], "pt": {"nome": "RGB Musical", "desc": "Equalizador de espectro com 60 LEDs WS2812B, microfone e FFT. Os LEDs reagem ao ritmo da música em tempo real.", "passos": [{"t": "Instalar a fita LED", "d": "Os WS2812B controlam-se com protocolo de um só fio. DIN ao D6."}, {"t": "Capturar áudio", "d": "O MAX4466 amplifica o microfone. Sinal a A0. Amostrar a 8kHz para análise de frequências."}, {"t": "FFT e visualização", "d": "Aplica FFT de 64 pontos. Mapeia as bandas de frequência para colunas de LEDs com cor por intensidade."}], "seguranca": ["A fita LED consome até 3A — usar fonte externa", "Não olhar directamente para os LEDs acesos a brilho máximo"]}, "es": {"nome": "RGB Musical", "desc": "Ecualizador de espectro con 60 LEDs WS2812B, micrófono y FFT. Los LEDs reaccionan al ritmo de la música en tiempo real.", "passos": [{"t": "Instalar la tira LED", "d": "Los WS2812B se controlan con protocolo de un solo cable. DIN al D6."}, {"t": "Capturar audio", "d": "El MAX4466 amplifica el micrófono. Señal a A0. Muestrear a 8kHz para análisis de frecuencias."}, {"t": "FFT y visualización", "d": "Aplica FFT de 64 puntos. Mapea las bandas de frecuencia a columnas de LEDs con color por intensidad."}], "seguranca": ["La tira LED consume hasta 3A — usar fuente externa", "No mirar directamente los LEDs encendidos a máximo brillo"]}}, {"id": 27, "nivel": 3, "idade": "12+", "preco": 55, "emoji": "⚖️", "img": "images/kit27_robot_equilibrado.webp", "chips": ["ATmega2560", "MPU-6050", "PID", "TB6612"], "supervision": true, "hw": [{"comp": "MPU-6050 SDA", "pin": "A4", "tipo": "i2c"}, {"comp": "MPU-6050 SCL", "pin": "A5", "tipo": "i2c"}, {"comp": "TB6612 IN1–IN4", "pin": "D2–D5", "tipo": "sig"}, {"comp": "TB6612 PWMA/B", "pin": "D9/D10", "tipo": "sig"}], "pt": {"nome": "Robot Auto-Equilibrado", "desc": "Robot bípode que se equilibra sozinho usando MPU-6050 e controlo PID. O clássico problema de controlo.", "passos": [{"t": "Ler o IMU", "d": "O MPU-6050 dá ângulo de inclinação com filtro complementar: α × accel + (1–α) × gyro."}, {"t": "Implementar PID", "d": "Erro = ângulo_desejado – ângulo_actual. A saída PID controla a velocidade dos motores."}, {"t": "Sintonizar PID", "d": "Começa com Kp alto, adiciona Kd para amortecimento, Ki pequeno para eliminar erro estático."}], "seguranca": ["⚠️ O robot pode cair e bater — supervisão constante", "Bateria LiPo 7.4V — não curto-circuitar", "Usar em superfícies planas"]}, "es": {"nome": "Robot Auto-Equilibrado", "desc": "Robot bípode que se equilibra solo usando MPU-6050 y control PID. El clásico problema de control.", "passos": [{"t": "Leer el IMU", "d": "El MPU-6050 da ángulo de inclinación con filtro complementario: α × accel + (1–α) × gyro."}, {"t": "Implementar PID", "d": "Error = ángulo_deseado – ángulo_actual. La salida PID controla la velocidad de los motores."}, {"t": "Sintonizar PID", "d": "Empieza con Kp alto, añade Kd para amortiguación, Ki pequeño para eliminar error estático."}], "seguranca": ["⚠️ El robot puede caer y golpear — supervisión constante", "Batería LiPo 7.4V — no cortocircuitar", "Usar en superficies planas"]}}, {"id": 28, "nivel": 3, "idade": "12+", "preco": 48, "emoji": "☀️", "img": "images/kit28_seguidor_solar.webp", "chips": ["ATmega328P", "2× Servo", "4× LDR", "Solar"], "supervision": false, "hw": [{"comp": "4× LDR", "pin": "A0–A3", "tipo": "sig"}, {"comp": "Servo azimute", "pin": "D9", "tipo": "sig"}, {"comp": "Servo elevação", "pin": "D10", "tipo": "sig"}, {"comp": "Painel (medida)", "pin": "A4", "tipo": "sig"}], "pt": {"nome": "Seguidor Solar", "desc": "Painel solar que segue automaticamente o sol para maximizar a geração. Dois servos, quatro LDRs e controlo diferencial.", "passos": [{"t": "Dispor os LDRs", "d": "4 LDRs nos quadrantes do painel (cima-esq, cima-dir, baixo-esq, baixo-dir)."}, {"t": "Controlo de azimute e elevação", "d": "Servo 1 controla a rotação horizontal (azimute), Servo 2 a inclinação (elevação)."}, {"t": "Lógica diferencial", "d": "Move cada servo para o quadrante que recebe mais luz. O painel aponta sempre para o ponto mais brilhante."}], "seguranca": ["Sem riscos específicos", "Fixar bem a estrutura para evitar quedas"]}, "es": {"nome": "Seguidor Solar", "desc": "Panel solar que sigue automáticamente al sol para maximizar la generación. Dos servos, cuatro LDRs y control diferencial.", "passos": [{"t": "Disponer las LDRs", "d": "4 LDRs en los cuadrantes del panel (arriba-izq, arriba-der, abajo-izq, abajo-der)."}, {"t": "Control de azimut y elevación", "d": "Servo 1 controla la rotación horizontal (azimut), Servo 2 la inclinación (elevación)."}, {"t": "Lógica diferencial", "d": "Mueve cada servo hacia el cuadrante que recibe más luz. El panel siempre apunta al punto más brillante."}], "seguranca": ["Sin riesgos específicos", "Fijar bien la estructura para evitar caídas"]}}, {"id": 29, "nivel": 4, "idade": "14+", "preco": 55, "emoji": "📡", "img": "images/kit29_robot_bluetooth.webp", "chips": ["ATmega2560", "BT", "L298N×2", "HC-SR04"], "supervision": true, "hw": [{"comp": "HC-05 TX/RX", "pin": "D18/D19", "tipo": "dat"}, {"comp": "2× L298N", "pin": "D2–D9", "tipo": "sig"}, {"comp": "HC-SR04", "pin": "D22/D23", "tipo": "sig"}, {"comp": "LiPo 7.4V", "pin": "L298N VIN", "tipo": "pwr"}], "pt": {"nome": "Robot Bluetooth", "desc": "Robot omnidireccional controlado a partir do telemóvel por Bluetooth. App Android, sensores de obstáculos e modo autónomo.", "passos": [{"t": "Montar a plataforma", "d": "Chassis de 4 rodas com dois módulos L298N para controlo independente de cada motor."}, {"t": "Programar a app", "d": "Usa MIT App Inventor para criar uma app com joystick virtual. Envia comandos JSON por BT."}, {"t": "Modo esquiva obstáculos", "d": "Quando o HC-SR04 detecta < 30 cm → activar modo autónomo de esquiva."}], "seguranca": ["⚠️ Robot rápido — não usar perto de crianças pequenas", "Desactivar antes de cabear", "Supervisão adulta"]}, "es": {"nome": "Robot Bluetooth", "desc": "Robot omnidireccional controlado desde el móvil por Bluetooth. App Android, sensores de obstáculos y modo autónomo.", "passos": [{"t": "Montar la plataforma", "d": "Chasis de 4 ruedas con dos módulos L298N para control independiente de cada motor."}, {"t": "Programar la app", "d": "Usa MIT App Inventor para crear una app con joystick virtual. Envía comandos JSON por BT."}, {"t": "Modo esquiva obstáculos", "d": "Cuando el HC-SR04 detecta < 30 cm → activar modo autónomo de esquiva."}], "seguranca": ["⚠️ Robot rápido — no usar cerca de niños pequeños", "Desactivar antes de cablear", "Supervisión adulta"]}}, {"id": 30, "nivel": 4, "idade": "14+", "preco": 58, "emoji": "🔑", "img": "images/kit30_controlo_rfid.webp", "chips": ["ATmega328P", "MFRC522", "SPI", "SD"], "supervision": false, "hw": [{"comp": "RC522 SDA", "pin": "D10", "tipo": "spi"}, {"comp": "RC522 SCK/MOSI/MISO", "pin": "D13/D11/D12", "tipo": "spi"}, {"comp": "RC522 RST", "pin": "D9", "tipo": "sig"}, {"comp": "LCD I2C", "pin": "A4/A5", "tipo": "i2c"}], "pt": {"nome": "Controlo RFID", "desc": "Sistema de controlo de acesso com RFID RC522. Regista cartões autorizados, indica acesso com LEDs e log em SD.", "passos": [{"t": "Ligar o RC522 por SPI", "d": "SDA=D10, SCK=D13, MOSI=D11, MISO=D12, RST=D9. O módulo opera a 3.3V."}, {"t": "Registar cartões", "d": "Modo de registo: primeira leitura guarda o UID na EEPROM como cartão autorizado."}, {"t": "Log de acessos", "d": "Cada acesso guarda no SD: timestamp, UID, resultado (autorizado/negado)."}], "seguranca": ["Sem riscos específicos", "Os cartões RFID são inócuos"]}, "es": {"nome": "Control RFID", "desc": "Sistema de control de acceso con RFID RC522. Registra tarjetas autorizadas, indica acceso con LEDs y log en SD.", "passos": [{"t": "Conectar el RC522 por SPI", "d": "SDA=D10, SCK=D13, MOSI=D11, MISO=D12, RST=D9. El módulo opera a 3.3V."}, {"t": "Registrar tarjetas", "d": "Modo de registro: primera lectura guarda el UID en EEPROM como tarjeta autorizada."}, {"t": "Log de accesos", "d": "Cada acceso guarda en SD: timestamp, UID, resultado (autorizado/denegado)."}], "seguranca": ["Sin riesgos específicos", "Las tarjetas RFID son inocuas"]}}, {"id": 31, "nivel": 4, "idade": "14+", "preco": 75, "emoji": "🌫️", "img": "images/kit31_qualidade_ar_wifi.webp", "chips": ["ESP8266", "WiFi", "PMS5003", "MH-Z19B"], "supervision": false, "hw": [{"comp": "PMS5003 TX/RX", "pin": "D1/D2", "tipo": "dat"}, {"comp": "MH-Z19B TX/RX", "pin": "D5/D6", "tipo": "dat"}, {"comp": "DHT22", "pin": "D4", "tipo": "sig"}, {"comp": "OLED I2C", "pin": "D3/D4", "tipo": "i2c"}], "pt": {"nome": "Qualidade Ar WiFi", "desc": "Estação IoT com ESP8266 que publica dados de PM2.5, CO2, temperatura e humidade para servidor web em tempo real.", "passos": [{"t": "Configurar WiFi", "d": "O ESP8266 liga-se à tua rede WiFi. Os dados são publicados num servidor HTTP local."}, {"t": "Ler sensores", "d": "PMS5003 por UART (partículas PM1/PM2.5/PM10), MH-Z19B por UART (CO2 ppm), DHT22 por D4."}, {"t": "Dashboard web", "d": "Página web embebida com gráficos em tempo real usando Chart.js. Acessível de qualquer dispositivo."}], "seguranca": ["Sem riscos específicos", "O sensor PMS5003 usa laser de baixa potência, inofensivo"]}, "es": {"nome": "Monitor Calidad Aire WiFi", "desc": "Estación IoT con ESP8266 que publica datos de PM2.5, CO2, temperatura y humedad a servidor web en tiempo real.", "passos": [{"t": "Configurar WiFi", "d": "El ESP8266 se conecta a tu red WiFi. Los datos se publican en un servidor HTTP local."}, {"t": "Leer sensores", "d": "PMS5003 por UART (partículas PM1/PM2.5/PM10), MH-Z19B por UART (CO2 ppm), DHT22 por D4."}, {"t": "Dashboard web", "d": "Página web embebida con gráficos en tiempo real usando Chart.js. Accesible desde cualquier dispositivo."}], "seguranca": ["Sin riesgos específicos", "El sensor PMS5003 usa láser de baja potencia, inofensivo"]}}, {"id": 32, "nivel": 4, "idade": "14+", "preco": 90, "emoji": "📊", "img": "images/kit32_osciloscopio.webp", "chips": ["ATmega2560", "TFT", "ADC 10bit", "FFT"], "supervision": false, "hw": [{"comp": "TFT SPI", "pin": "D50–D53", "tipo": "spi"}, {"comp": "Canal 1 ADC", "pin": "A0", "tipo": "sig"}, {"comp": "Canal 2 ADC", "pin": "A1", "tipo": "sig"}, {"comp": "MCP6002", "pin": "A0/A1", "tipo": "sig"}], "pt": {"nome": "Osciloscópio Digital", "desc": "Osciloscópio de 2 canais com ecrã TFT 3.2\", trigger configurável e análise de FFT. Ferramenta de laboratório real.", "passos": [{"t": "Pré-amplificador", "d": "O MCP6002 condiciona o sinal. Gama de entrada: ±5V com divisor de tensão e protecção."}, {"t": "Amostragem ADC", "d": "Amostragem a 50kHz com timer1. Duplo buffer para captura contínua sem interrupções do ecrã."}, {"t": "Renderizar a onda", "d": "O ecrã TFT desenha a forma de onda com linhas. Trigger em flanco configurável."}], "seguranca": ["⚠️ Não medir tensões >30V com este osciloscópio", "Para sinais de baixo nível (áudio, sensores) apenas", "Protecção de entrada: máx ±15V com os atenuadores"]}, "es": {"nome": "Osciloscopio Digital", "desc": "Osciloscopio de 2 canales con pantalla TFT 3.2\", disparador configurable y análisis de FFT. Herramienta de laboratorio real.", "passos": [{"t": "Preamplificador", "d": "El MCP6002 acondiciona la señal. Rango de entrada: ±5V con divisor de tensión y protección."}, {"t": "Muestreo ADC", "d": "Muestreo a 50kHz con timer1. Doble buffer para captura continua sin interrupciones de pantalla."}, {"t": "Renderizar la onda", "d": "La pantalla TFT dibuja la forma de onda con líneas. Disparo en flanco configurable."}], "seguranca": ["⚠️ No medir tensiones >30V con este osciloscopio", "Para señales de bajo nivel (audio, sensores) solamente", "Protección de entrada: máx ±15V con los atenuadores"]}}, {"id": 33, "nivel": 4, "idade": "14+", "preco": 110, "emoji": "⚡", "img": "images/kit33_carregador_solar_mppt.webp", "chips": ["ATmega328P", "Buck converter", "MPPT", "INA219"], "supervision": true, "hw": [{"comp": "MOSFET gate", "pin": "D9 (PWM)", "tipo": "sig"}, {"comp": "INA219 SDA", "pin": "A4", "tipo": "i2c"}, {"comp": "INA219 SCL", "pin": "A5", "tipo": "i2c"}, {"comp": "Tensão bateria", "pin": "A0", "tipo": "sig"}], "pt": {"nome": "Carregador Solar MPPT", "desc": "Carregador solar com algoritmo MPPT real. Maximiza a extracção de energia do painel solar.", "passos": [{"t": "Construir o conversor buck", "d": "MOSFET + bobine + condensador formam um conversor redutor. Frequência de comutação: 20kHz."}, {"t": "Medir potência", "d": "INA219 mede tensão e corrente do painel. Potência = V × I."}, {"t": "Algoritmo P&O", "d": "Perturba o ciclo de trabalho do PWM e observa se a potência aumenta ou diminui. Segue o máximo."}], "seguranca": ["⚠️ Tensões de 12V e correntes >5A", "Supervisão adulta obrigatória", "Não curto-circuitar o barramento de 12V"]}, "es": {"nome": "Cargador Solar MPPT", "desc": "Cargador solar con algoritmo MPPT real. Maximiza la extracción de energía del panel solar.", "passos": [{"t": "Construir el convertidor buck", "d": "MOSFET + bobina + condensador forman un convertidor reductor. Frecuencia de conmutación: 20kHz."}, {"t": "Medir potencia", "d": "INA219 mide tensión y corriente del panel. Potencia = V × I."}, {"t": "Algoritmo P&O", "d": "Perturba el ciclo de trabajo del PWM y observa si la potencia aumenta o disminuye. Sigue el máximo."}], "seguranca": ["⚠️ Tensiones de 12V y corrientes >5A", "Supervisión adulta obligatoria", "No cortocircuitar el bus de 12V"]}}, {"id": 34, "nivel": 5, "idade": "16+", "preco": 130, "emoji": "🤖", "img": "images/kit34_braco_4dof.webp", "chips": ["ATmega2560", "PCA9685", "IK", "4× MG996R"], "supervision": false, "hw": [{"comp": "PCA9685 SDA/SCL", "pin": "A4/A5", "tipo": "i2c"}, {"comp": "4× MG996R via PCA", "pin": "ch0–3", "tipo": "sig"}, {"comp": "Joystick 1 X/Y", "pin": "A0/A1", "tipo": "sig"}, {"comp": "Joystick 2 X/Y", "pin": "A2/A3", "tipo": "sig"}], "pt": {"nome": "Braço Robótico 4-DOF", "desc": "Braço robótico de 4 graus de liberdade com pinça. Controlo por joysticks duais, cinemática directa e inversa e memória de sequências.", "passos": [{"t": "Controlador PWM PCA9685", "d": "O PCA9685 controla 16 servos por I2C. Liberta os pinos da placa e dá resolução de 12 bits."}, {"t": "Cinemática directa", "d": "Dadas as posições dos servos, calcular a posição do extremo do braço no espaço 3D."}, {"t": "Memória de sequências", "d": "Grava até 50 posições. Reproduz a sequência em loop. Útil para automatização."}], "seguranca": ["⚠️ Os MG996R têm binário alto (13 kg·cm) — não meter dedos na trajectória do braço", "Usar a estrutura de montagem incluída", "Cortar a alimentação antes de mudar a posição manualmente"]}, "es": {"nome": "Brazo Robótico 4-DOF", "desc": "Brazo robótico de 4 grados de libertad con pinza. Control por joysticks duales, cinemática directa e inversa y memoria de secuencias.", "passos": [{"t": "Controlador PWM PCA9685", "d": "El PCA9685 controla 16 servos por I2C. Libera los pines de la placa y da resolución de 12 bits."}, {"t": "Cinemática directa", "d": "Dadas las posiciones de los servos, calcular la posición del extremo del brazo en el espacio 3D."}, {"t": "Memoria de secuencias", "d": "Graba hasta 50 posiciones. Reproduce la secuencia en bucle. Útil para automatización."}], "seguranca": ["⚠️ Los MG996R tienen alto par (13 kg·cm) — no meter dedos en la trayectoria del brazo", "Usar la estructura de montaje incluida", "Cortar la alimentación antes de cambiar la posición manualmente"]}}, {"id": 35, "nivel": 5, "idade": "16+", "preco": 120, "emoji": "🏠", "img": "images/kit35_casa_inteligente_solar.webp", "chips": ["ATmega2560", "ESP8266", "Solar", "Domótica"], "supervision": false, "hw": [{"comp": "ESP8266 TX/RX", "pin": "D18/D19", "tipo": "dat"}, {"comp": "4× Relé", "pin": "D2–D5", "tipo": "sig"}, {"comp": "2× Servo", "pin": "D9/D10", "tipo": "sig"}, {"comp": "DHT22", "pin": "D22", "tipo": "sig"}], "pt": {"nome": "Casa Inteligente Solar", "desc": "Maquete de casa domótica com energia solar. Controlo de iluminação, persianas, temperatura, alarme e servidor web local.", "passos": [{"t": "Sistema de energia solar", "d": "Painel solar carrega bateria 12V. Conversor DC/DC produz 5V para os microcontroladores."}, {"t": "Nó de controlo ATmega", "d": "ATmega2560 controla todos os actuadores (relés, servos, LEDs) e lê os sensores."}, {"t": "Servidor web ESP8266", "d": "O ESP8266 publica uma interface web de controlo. Comunicação com ATmega por UART."}], "seguranca": ["⚠️ Os relés comutar 12V DC — não tocar nos bornes enquanto funciona", "Supervisão adulta durante a instalação do sistema de energia"]}, "es": {"nome": "Casa Inteligente Solar", "desc": "Maqueta de casa domótica con energía solar. Control de iluminación, persianas, temperatura, alarma y servidor web local.", "passos": [{"t": "Sistema de energía solar", "d": "Panel solar carga batería 12V. Convertidor DC/DC produce 5V para los microcontroladores."}, {"t": "Nodo de control ATmega", "d": "ATmega2560 controla todos los actuadores (relés, servos, LEDs) y lee los sensores."}, {"t": "Servidor web ESP8266", "d": "El ESP8266 publica una interfaz web de control. Comunicación con ATmega por UART."}], "seguranca": ["⚠️ Los relés conmutan 12V DC — no tocar los bornes mientras funciona", "Supervisión adulta durante la instalación del sistema de energía"]}}];
+const I18N = {"pt": {"logo_sufixo": ".pt", "banner": [["🚚", "Envio 2–4 dias", "Grátis desde €50"], ["🔒", "Pagamento seguro", "SSL"], ["💳", "MB Way · Visa · Mastercard · PayPal · Multibanco", ""], ["📦", "Componentes + esquema + tutorial incluídos", ""]], "nav_projetos": "Projectos", "nav_combos": "Combos", "nav_como": "Como Funciona", "nav_aprender": "Aprender", "nav_carrito": "Carrinho", "hero_badge": "⚡ Electrónica educativa · Portugal", "hero_h1": "Aprende electrónica e programação<br><em>construindo projectos reais</em>", "hero_p": "35 kits completos de electrónica e programação para crianças e jovens. Componentes + esquema de ligações + tutorial passo a passo incluídos.", "stat_kits": "Kits disponíveis", "stat_niveis": "Níveis de dificuldade", "stat_idades": "Anos de idade", "stat_desde": "A partir de", "filtro_todos": "Todos (35)", "filtro_n1": "Nível 1 — Iniciante", "filtro_n2": "Nível 2 — Básico", "filtro_n3": "Nível 3 — Intermédio", "filtro_n4": "Nível 4 — Avançado", "filtro_n5": "Nível 5 — Expert", "nivel_nomes": ["", "Iniciante", "Básico", "Intermédio", "Avançado", "Expert"], "anos": "anos", "iva_label": "IVA 23% incl.", "btn_carrito_tarjeta": "+ Carrinho", "btn_volver": "← Voltar a projectos", "sec_desc": "📋 Descrição", "sec_passos": "📐 Passos do projecto", "sec_hw": "🔌 Tabela de ligações", "sec_codigo": "💻 Código fonte", "sec_seg": "🛡️ Notas de segurança", "sec_comp": "🧩 Componentes incluídos", "hw_comp": "Componente", "hw_pino": "Pino / Ligação", "hw_tipo": "Tipo", "seg_antes": "⚠️ Antes de começar", "btn_comprar": "🛒 Adicionar ao carrinho", "btn_so_add": "+ Só adicionar ao carrinho", "preco_desc": "IVA 23% incluído · Envio grátis a partir de €50", "incl": ["Todos os componentes", "Diagrama A5 impresso", "Tutorial completo online", "Código fonte comentado", "Envio 2–4 dias úteis", "Devolução 14 dias"], "supervision_label": "⚠️ Supervisão recomendada", "carrito_titulo": "🛒 O teu carrinho", "carrito_vazio_titulo": "O teu carrinho está vazio", "carrito_vazio_desc": "Explora os 35 kits e escolhe o teu primeiro projecto.", "carrito_ver": "Ver projectos", "carrito_subtotal": "Subtotal", "artigo": "artigo", "artigos": "artigos", "carrito_envio": "Envio para Portugal", "carrito_falta": "Falta €{n} para envio grátis", "carrito_total": "Total", "carrito_continuar": "Continuar para pagamento →", "envio_gratis": "GRÁTIS ✅", "checkout_titulo": "Finalizar compra", "ch_entrega": "📦 Morada de entrega", "ch_nome": "Nome", "ch_apelido": "Apelido", "ch_morada": "Morada", "ch_cp": "Código Postal", "ch_cidade": "Cidade", "ch_distrito": "Distrito", "ch_tel": "Telemóvel", "ch_email": "Email", "ch_pagamento": "💳 Método de pagamento", "pagamentos": [["📱", "MB Way"], ["💳", "Cartão (Visa / MC)"], ["🏧", "Multibanco"], ["🅿️", "PayPal"]], "ch_resumo": "📋 Resumo do pedido", "iva_aviso": "Preços incluem IVA 23% (Portugal) · Componentes conformes RoHS · Concebido para compatibilidade CE", "btn_finalizar": "✅ Confirmar encomenda", "conf_titulo": "🎉 Encomenda confirmada!", "conf_info": "Receberás um email de confirmação com o seguimento do envio.\n<strong>Entrega estimada: 2–4 dias úteis</strong>\n\nO teu kit inclui todos os componentes, o diagrama de ligações\ne acesso ao tutorial completo em kidtronica.pt/tutoriais", "conf_btn": "Continuar a explorar kits", "cf_titulo": "Como funciona a Kidtrónica?", "cf_sub": "Tudo o que precisas para aprender electrónica, pronto a usar.", "cf_passos": [["01", "Escolhe o teu kit por nível e idade", "Temos 5 níveis de dificuldade, desde 8 anos (Nível 1 – Iniciante) até 16+ anos (Nível 5 – Expert). Cada kit indica a idade mínima recomendada e se é necessária supervisão adulta."], ["02", "Recebe o kit em casa", "Envio em 2–4 dias úteis para todo o Portugal. A caixa kraft inclui todos os componentes contados, o diagrama de ligações impresso em A5 e o autocolante Kidtrónica. Envio gratuito a partir de €50."], ["03", "Segue o tutorial passo a passo", "Cada kit tem um tutorial com passos numerados, tabela de ligações codificada por cores, código fonte comentado linha a linha e vídeos de apoio."], ["04", "Constrói, programa e aprende", "O projecto funciona de verdade. Cada sucesso gera motivação para o próximo nível."]], "cf_niveis_titulo": "Os 5 níveis", "niveis_info": [["N1", "#4ade80", "Iniciante", "8+ anos · €22–25\nLEDs, buzzers, sensores básicos. Sem soldadura."], ["N2", "#60a5fa", "Básico", "10+ anos · €25–35\nLCD, servo, ultrassons, PIR. Primeiros programas."], ["N3", "#facc15", "Intermédio", "12+ anos · €39–65\nRobots, RTC, estação meteorológica. Lógica avançada."], ["N4", "#fb923c", "Avançado", "14+ anos · €45–110\nBluetooth, WiFi, RFID. Projectos IoT completos."], ["N5", "#c084fc", "Expert", "16+ anos · €100–150\nBraço robótico, drone, casa inteligente solar."]], "cf_incl_titulo": "📦 O que inclui cada kit", "cf_incl": ["Todos os componentes electrónicos contados", "Placa de desenvolvimento compatível ATmega328P ou ATmega2560", "Diagrama de ligações impresso em A5 (cor)", "Código fonte comentado em português", "Tutorial passo a passo em kidtronica.pt", "Embalagem kraft reciclável · Autocolante Kidtrónica", "Suporte técnico por email"], "ap_titulo": "Aprender electrónica", "ap_sub": "Conceitos básicos explicados de forma simples.", "footer_desc": "Kits de electrónica educativa para crianças e jovens de 8 a 16 anos. Aprender fazendo.", "footer_legal": "As placas de desenvolvimento são compatíveis com ATmega328P/ATmega2560.\n«Arduino» é marca registada de Arduino AG — sem afiliação.\n«WS2812B» utilizado em vez de «NeoPixel» (marca Adafruit).\nComponentes conformes RoHS · Concebido para compatibilidade CE.\nIVA incluído (23%) · Preços em EUR.", "footer_cols": [["Loja", ["Todos os kits", "Nível 1 — Iniciante", "Nível 2 — Básico", "Nível 3 — Intermédio", "Nível 4 — Avançado", "Nível 5 — Expert"]], ["Informação", ["Como Funciona", "Aprender", "Envios para Portugal", "Devoluções (14 dias)", "Perguntas frequentes"]], ["Legal", ["Aviso legal", "Política de privacidade", "Política de cookies", "Condições de venda", "Contacto"]]], "footer_bottom_l": "© 2026 Kidtrónica — Kits completos com componentes, esquema e tutorial", "footer_bottom_r": "🇵🇹 Entregas em Portugal", "toast_add": "Kit adicionado ao carrinho", "aviso_drone_titulo": "⚠️ Regulamentação ANAC — Portugal", "aviso_drone": ["Drones ou aeromodelos não tripulados de mais de 250g requerem <strong>registo na ANAC</strong> (Autoridade Nacional de Aviação Civil)", "É obrigatório obter um <strong>seguro de responsabilidade civil</strong> antes de voar", "Consultar o <strong>portal SESAR U-space</strong> antes de cada voo", "Proibido voar sobre pessoas, aglomerações, zonas urbanas densas e espaços protegidos", "Registo: <a href='https://www.anac.pt' target='_blank' style='color:var(--verde)'>anac.pt</a>"], "aviso_foguetao_titulo": "⚠️ Segurança — Foguetão de Água", "aviso_foguetao": ["Pressão máxima: <strong>60 PSI (4 bar)</strong> — NUNCA exceder", "Zona de segurança mínima: <strong>30 metros</strong> de raio", "Supervisão adulta obrigatória em todo o momento", "Não lançar perto de pessoas, animais, janelas ou linhas eléctricas"], "kit_ref": "KIT", "conf_ref_prefix": "KT-PT-"}, "es": {"logo_sufixo": ".es", "banner": [["🚚", "Envío 3–5 días", "Gratis desde €65"], ["🔒", "Pago seguro", "SSL"], ["💳", "Bizum · Visa · Mastercard · PayPal · Transferencia", ""], ["📦", "Componentes + esquema + tutorial incluidos", ""]], "nav_projetos": "Proyectos", "nav_combos": "Combos", "nav_como": "Cómo Funciona", "nav_aprender": "Aprender", "nav_carrito": "Carrito", "hero_badge": "⚡ Electrónica educativa · España", "hero_h1": "Aprende electrónica y programación<br><em>construyendo proyectos reales</em>", "hero_p": "35 kits completos de electrónica y programación para niños y jóvenes. Componentes + esquema de conexiones + tutorial paso a paso incluidos.", "stat_kits": "Kits disponibles", "stat_niveis": "Niveles de dificultad", "stat_idades": "Años de edad", "stat_desde": "Desde", "filtro_todos": "Todos (35)", "filtro_n1": "Nivel 1 — Principiante", "filtro_n2": "Nivel 2 — Básico", "filtro_n3": "Nivel 3 — Intermedio", "filtro_n4": "Nivel 4 — Avanzado", "filtro_n5": "Nivel 5 — Experto", "nivel_nomes": ["", "Principiante", "Básico", "Intermedio", "Avanzado", "Experto"], "anos": "años", "iva_label": "IVA 21% incl.", "btn_carrito_tarjeta": "+ Carrito", "btn_volver": "← Volver a proyectos", "sec_desc": "📋 Descripción", "sec_passos": "📐 Pasos del proyecto", "sec_hw": "🔌 Tabla de conexiones", "sec_codigo": "💻 Código fuente", "sec_seg": "🛡️ Notas de seguridad", "sec_comp": "🧩 Componentes incluidos", "hw_comp": "Componente", "hw_pino": "Pin / Conexión", "hw_tipo": "Tipo", "seg_antes": "⚠️ Antes de empezar", "btn_comprar": "🛒 Añadir al carrito", "btn_so_add": "+ Solo añadir al carrito", "preco_desc": "IVA 21% incluido · Envío gratis desde €65", "incl": ["Todos los componentes", "Diagrama A5 impreso", "Tutorial completo online", "Código fuente comentado", "Envío 3–5 días laborables", "Devolución 14 días"], "supervision_label": "⚠️ Supervisión recomendada", "carrito_titulo": "🛒 Tu carrito", "carrito_vazio_titulo": "Tu carrito está vacío", "carrito_vazio_desc": "Explora los 35 kits y elige tu primer proyecto.", "carrito_ver": "Ver proyectos", "carrito_subtotal": "Subtotal", "artigo": "artículo", "artigos": "artículos", "carrito_envio": "Envío a España", "carrito_falta": "Te faltan €{n} para envío gratis", "carrito_total": "Total", "carrito_continuar": "Continuar con el pago →", "envio_gratis": "GRATIS ✅", "checkout_titulo": "Finalizar compra", "ch_entrega": "📦 Dirección de entrega", "ch_nome": "Nombre", "ch_apelido": "Apellidos", "ch_morada": "Dirección", "ch_cp": "Código Postal", "ch_ciudad": "Ciudad", "ch_distrito": "Provincia", "ch_tel": "Teléfono", "ch_email": "Email", "ch_pagamento": "💳 Método de pago", "pagamentos": [["📱", "Bizum"], ["💳", "Tarjeta (Visa / MC)"], ["🏦", "Transferencia"], ["🅿️", "PayPal"]], "ch_resumo": "📋 Resumen del pedido", "iva_aviso": "Precios incluyen IVA 21% (España) · Componentes conformes RoHS · Diseñado para compatibilidad CE", "btn_finalizar": "✅ Confirmar pedido", "conf_titulo": "¡Pedido confirmado!", "conf_info": "Recibirás un email de confirmación con el seguimiento del envío.\n<strong>Entrega estimada: 3–5 días laborables</strong>\n\nTu kit incluye todos los componentes, el diagrama de conexiones\ny acceso al tutorial completo en kidtronica.es/tutoriales", "conf_btn": "Seguir explorando kits", "cf_titulo": "¿Cómo funciona Kidtrónica?", "cf_sub": "Todo lo que necesitas para aprender electrónica, listo para usar.", "cf_passos": [["01", "Elige tu kit por nivel y edad", "Tenemos 5 niveles de dificultad, desde 8 años (Nivel 1 – Principiante) hasta 16+ años (Nivel 5 – Experto). Cada kit indica la edad mínima recomendada y si se requiere supervisión adulta."], ["02", "Recibe el kit completo en casa", "Envío en 3–5 días laborables a toda España peninsular. La caja kraft incluye todos los componentes contados, el diagrama de conexiones impreso en A5 y el autoadhesivo Kidtrónica. Envío gratuito a partir de €65."], ["03", "Sigue el tutorial paso a paso", "Cada kit tiene un tutorial con pasos numerados, tabla de conexiones codificada por colores, código fuente comentado línea a línea y vídeos de apoyo."], ["04", "Construye, programa y aprende", "El proyecto funciona de verdad. Cada éxito genera motivación para el siguiente nivel."]], "cf_niveis_titulo": "Los 5 niveles", "niveis_info": [["N1", "#4ade80", "Principiante", "8+ años · €22–25\nLEDs, zumbadores, sensores básicos. Sin soldadura."], ["N2", "#60a5fa", "Básico", "10+ años · €25–35\nLCD, servo, ultrasonidos, PIR. Primeros programas."], ["N3", "#facc15", "Intermedio", "12+ años · €39–65\nRobots, RTC, estación meteorológica. Lógica avanzada."], ["N4", "#fb923c", "Avanzado", "14+ años · €45–110\nBluetooth, WiFi, RFID. Proyectos IoT completos."], ["N5", "#c084fc", "Experto", "16+ años · €100–150\nBrazo robótico, drone, casa inteligente solar."]], "cf_incl_titulo": "📦 Qué incluye cada kit", "cf_incl": ["Todos los componentes electrónicos contados", "Placa de desarrollo compatible ATmega328P o ATmega2560", "Diagrama de conexiones impreso en A5 (color)", "Código fuente comentado en castellano", "Tutorial paso a paso en kidtronica.es", "Embalaje kraft reciclable · Autoadhesivo Kidtrónica", "Soporte técnico por email"], "ap_titulo": "Aprender electrónica", "ap_sub": "Conceptos básicos explicados de forma sencilla.", "footer_desc": "Kits de electrónica educativa para niños y jóvenes de 8 a 16 años. Aprender haciendo.", "footer_legal": "Las placas de desarrollo son compatibles con ATmega328P/ATmega2560.\n«Arduino» es marca registada de Arduino AG — sin afiliación.\n«WS2812B» utilizado en lugar de «NeoPixel» (marca de Adafruit).\nComponentes conformes RoHS · Diseñado para compatibilidad CE.\nIVA incluido (21%) · Precios en EUR.\nkidtronica.es es operado desde Portugal (UE) · NIF-IVA intracomunitário.", "footer_cols": [["Tienda", ["Todos los kits", "Nivel 1 — Principiante", "Nivel 2 — Básico", "Nivel 3 — Intermedio", "Nivel 4 — Avanzado", "Nivel 5 — Experto"]], ["Información", ["Cómo funciona", "Aprender", "Envíos a España", "Devoluciones (14 días)", "Preguntas frecuentes"]], ["Legal", ["Aviso legal", "Política de privacidad", "Política de cookies", "Condiciones de venta", "Contacto"]]], "footer_bottom_l": "© 2026 Kidtrónica — Kits completos con componentes, esquema y tutorial", "footer_bottom_r": "🇪🇸 Entregas en España · 🇵🇹 Operado desde Portugal (UE)", "toast_add": "Kit añadido al carrito", "aviso_drone_titulo": "⚠️ Normativa AESA — España", "aviso_drone": ["Drones o modelos aéreos no tripulados de más de 250g requieren <strong>registro en AESA</strong> (Agencia Estatal de Seguridad Aérea)", "Es obligatorio obtener un <strong>seguro de responsabilidad civil</strong> antes de volar", "Consultar el <strong>mapa de zonas ENAIRE</strong> antes de cada vuelo", "Prohibido volar sobre personas, aglomeraciones, zonas urbanas densas y espacios protegidos", "Registro: <a href='https://www.seguridadaerea.gob.es' target='_blank' style='color:var(--verde)'>seguridadaerea.gob.es</a>"], "aviso_foguetao_titulo": "⚠️ Seguridad — Cohete de Agua", "aviso_foguetao": ["Presión máxima: <strong>60 PSI (4 bar)</strong> — NUNCA superar", "Zona de seguridad mínima: <strong>30 metros</strong> de radio", "Supervisión adulta obligatoria en todo momento", "No lanzar cerca de personas, animales, ventanas o líneas eléctricas"], "kit_ref": "KIT", "conf_ref_prefix": "KT-ES-"}};
+const REGIOES = {
+  pt: ["Aveiro", "Beja", "Braga", "Bragança", "Castelo Branco", "Coimbra", "Évora", "Faro", "Guarda", "Leiria", "Lisboa", "Portalegre", "Porto", "Santarém", "Setúbal", "Viana do Castelo", "Vila Real", "Viseu", "Açores", "Madeira"],
+  es: ["A Coruña", "Álava", "Albacete", "Alicante", "Almería", "Asturias", "Ávila", "Badajoz", "Barcelona", "Burgos", "Cáceres", "Cádiz", "Cantabria", "Castellón", "Ciudad Real", "Córdoba", "Cuenca", "Gipuzkoa", "Girona", "Granada", "Guadalajara", "Huelva", "Huesca", "Islas Baleares", "Jaén", "La Rioja", "Las Palmas", "León", "Lleida", "Lugo", "Madrid", "Málaga", "Murcia", "Navarra", "Ourense", "Palencia", "Pontevedra", "Salamanca", "Segovia", "Sevilla", "Soria", "Tarragona", "Santa Cruz de Tenerife", "Teruel", "Toledo", "Valencia", "Valladolid", "Vizcaya", "Zamora", "Zaragoza"]
+};
+
+// =====================================================
+// ESTADO
+// =====================================================
+let lang = localStorage.getItem('kt-lang') || 'pt';
+let carrito = [];
+let filtroActual = 'todos';
+let packActual = null;   // id do programa temático seleccionado (filtra grid por kits do pack)
+
+// =====================================================
+// TROCAR LÍNGUA
+// =====================================================
+function setLang(l) {
+  lang = l;
+  localStorage.setItem('kt-lang', l);
+  document.getElementById('html-root').lang = l;
+  document.getElementById('btn-pt').classList.toggle('activo', l === 'pt');
+  document.getElementById('btn-es').classList.toggle('activo', l === 'es');
+  aplicarI18N();
+  if(packActual){
+    const c = COMBOS_TEMATICOS.find(x => x.id === packActual);
+    const kits = c ? c.kits.map(kid => KITS.find(k=>k.id===kid)).filter(Boolean) : KITS;
+    renderizarGrid(kits);
+  } else {
+    renderizarGrid(filtroActual === 'todos' ? KITS : KITS.filter(k => k.nivel == filtroActual));
+  }
+  renderizarFiltros();
+  renderizarPacksHL();
+  renderizarPackInfo();
+}
+
+// =====================================================
+// APLICAR TODAS AS STRINGS DE UI
+// =====================================================
+function aplicarI18N() {
+  const t = I18N[lang];
+  // logo
+  document.getElementById('logo-sufixo').textContent = t.logo_sufixo;
+  // nav
+  document.getElementById('nav-projetos').textContent = t.nav_projetos;
+  document.getElementById('nav-combos').textContent = t.nav_combos;
+  document.getElementById('nav-como').textContent = t.nav_como;
+  document.getElementById('nav-aprender').textContent = t.nav_aprender;
+  document.getElementById('nav-carrito').textContent = t.nav_carrito;
+  // banner
+  const banner = document.getElementById('banner-info');
+  banner.innerHTML = t.banner.map(([ico, label, val]) =>
+    `<span>${ico} <strong>${label}</strong>${val ? ' ' + val : ''}</span>`
+  ).join('');
+  // hero
+  document.getElementById('hero-badge').textContent = t.hero_badge;
+  document.getElementById('hero-h1').innerHTML = t.hero_h1;
+  document.getElementById('hero-p').textContent = t.hero_p;
+  document.getElementById('stat-kits').textContent = t.stat_kits;
+  document.getElementById('stat-niveis').textContent = t.stat_niveis;
+  document.getElementById('stat-idades').textContent = t.stat_idades;
+  document.getElementById('stat-desde').textContent = t.stat_desde;
+  // btn voltar
+  document.getElementById('btn-volver').textContent = t.btn_volver;
+  // carrito
+  document.getElementById('carrito-titulo').textContent = t.carrito_titulo;
+  // checkout
+  document.getElementById('checkout-titulo').textContent = t.checkout_titulo;
+  document.getElementById('ch-entrega-titulo').textContent = t.ch_entrega;
+  document.getElementById('lbl-nome').textContent = t.ch_nome;
+  document.getElementById('lbl-apelido').textContent = t.ch_apelido;
+  document.getElementById('lbl-morada').textContent = t.ch_morada;
+  document.getElementById('lbl-cp').textContent = t.ch_cp;
+  document.getElementById('lbl-cidade').textContent = lang === 'pt' ? t.ch_cidade : t.ch_ciudad;
+  document.getElementById('lbl-regiao').textContent = t.ch_distrito;
+  document.getElementById('lbl-tel').textContent = t.ch_tel;
+  document.getElementById('lbl-email').textContent = t.ch_email;
+  document.getElementById('ch-pag-titulo').textContent = t.ch_pagamento;
+  document.getElementById('ch-resumo-titulo').textContent = t.ch_resumo;
+  document.getElementById('iva-aviso').textContent = t.iva_aviso;
+  document.getElementById('btn-finalizar').textContent = t.btn_finalizar;
+  // metodos de pagamento
+  const mp = document.getElementById('metodos-pago');
+  mp.innerHTML = t.pagamentos.map((p, i) =>
+    `<div class="metodo-pago${i===0?' seleccionado':''}" onclick="seleccionarPago(this)">
+      <span class="metodo-pago-icon">${p[0]}</span><span>${p[1]}</span>
+    </div>`
+  ).join('');
+  // regiões
+  const sel = document.getElementById('ch-regiao');
+  sel.innerHTML = '<option value=""></option>' + REGIOES[lang].map(r => `<option>${r}</option>`).join('');
+  // confirmação
+  document.getElementById('conf-titulo').textContent = lang === 'pt' ? 'Encomenda confirmada! 🎉' : '¡Pedido confirmado! 🎉';
+  document.getElementById('conf-info').innerHTML = t.conf_info.split('\n').join('<br>');
+  document.getElementById('conf-btn').textContent = t.conf_btn;
+  // como funciona
+  document.getElementById('cf-titulo').textContent = t.cf_titulo;
+  document.getElementById('cf-sub').textContent = t.cf_sub;
+  document.getElementById('cf-pasos').innerHTML = t.cf_passos.map(([num,titulo,desc]) =>
+    `<div class="cf-paso"><div class="cf-paso-num">${num}</div><div><h3>${titulo}</h3><p>${desc}</p></div></div>`
+  ).join('');
+  document.getElementById('cf-niveis-titulo').textContent = t.cf_niveis_titulo;
+  document.getElementById('cf-niveis').innerHTML = t.niveis_info.map(([n,cor,label,desc]) =>
+    `<div class="nivel-tarjeta"><div class="nivel-tarjeta-num" style="color:${cor}">${n}</div>
+     <h4>${label}</h4><p style="color:var(--texto2);font-size:.85rem;">${desc.split('\n').join('<br>')}</p></div>`
+  ).join('');
+  document.getElementById('cf-incl-titulo').textContent = t.cf_incl_titulo;
+  document.getElementById('cf-incl').innerHTML = t.cf_incl.map(i =>
+    `<div class="incl-item"><span class="incl-icon">✅</span> ${i}</div>`
+  ).join('');
+  // aprender
+  document.getElementById('ap-titulo').textContent = t.ap_titulo;
+  document.getElementById('ap-sub').textContent = t.ap_sub;
+  renderizarAprender();
+  // footer
+  renderizarFooter();
+}
+
+// =====================================================
+// RENDERIZAR FOOTER
+// =====================================================
+function renderizarFooter() {
+  const t = I18N[lang];
+  const fg = document.getElementById('footer-grid');
+  const colsHTML = t.footer_cols.map(([titulo, links]) =>
+    `<div><h4>${titulo}</h4>${links.map(l => `<span class="footer-link">${l}</span>`).join('')}</div>`
+  ).join('');
+  fg.innerHTML = `
+    <div>
+      <div class="footer-logo">Kidtronica<span>${t.logo_sufixo}</span></div>
+      <p class="footer-desc">${t.footer_desc}</p>
+      <p class="footer-legal">${t.footer_legal.split('\n').join('<br>')}</p>
+    </div>
+    ${colsHTML}`;
+  document.getElementById('footer-bottom-l').textContent = t.footer_bottom_l;
+  document.getElementById('footer-bottom-r').textContent = t.footer_bottom_r;
+}
+
+// =====================================================
+// RENDERIZAR PÁGINA APRENDER
+// =====================================================
+function renderizarAprender() {
+  const conceitos = lang === 'pt' ? [
+    ["⚡ O que é a electrónica?", "A electrónica estuda e controla o fluxo de electrões em circuitos. Com componentes como resistências, LEDs, sensores e microcontroladores podemos criar dispositivos inteligentes que interagem com o mundo real."],
+    ["🔌 Componentes fundamentais", "<strong>Resistência</strong> — Limita o fluxo de corrente. Mede-se em ohms (Ω).<br><strong>LED</strong> — Díodo emissor de luz. Precisa de resistência em série para não queimar.<br><strong>Condensador</strong> — Armazena energia eléctrica temporariamente.<br><strong>Transistor</strong> — Amplificador ou interruptor electrónico.<br><strong>Sensor</strong> — Converte grandezas físicas em sinais eléctricos."],
+    ["🧠 O microcontrolador ATmega328P", "Um microcontrolador é um pequeno computador num chip. O ATmega328P tem processador de 8 bits a 16 MHz, 32 KB de memória de programa e 2 KB de RAM. Executa o código que escreves e controla os pinos de entrada/saída."],
+    ["🛡️ Segurança no laboratório", "• Trabalha sempre com a placa <strong>desligada</strong> ao fazer alterações no circuito.<br>• Os kits Kidtrónica funcionam a <strong>5V ou 3.3V</strong> — tensões seguras para crianças.<br>• Nunca ligar directamente à rede eléctrica (230V).<br>• Os kits com motor ou hélice requerem supervisão adulta."]
+  ] : [
+    ["⚡ ¿Qué es la electrónica?", "La electrónica estudia y controla el flujo de electrones en circuitos. Con componentes como resistencias, LEDs, sensores y microcontroladores podemos crear dispositivos inteligentes que interactúan con el mundo real."],
+    ["🔌 Componentes fundamentales", "<strong>Resistencia</strong> — Limita el flujo de corriente. Se mide en ohmios (Ω).<br><strong>LED</strong> — Diodo emisor de luz. Necesita resistencia en serie para no quemarse.<br><strong>Condensador</strong> — Almacena energía eléctrica temporalmente.<br><strong>Transistor</strong> — Amplificador o interruptor electrónico.<br><strong>Sensor</strong> — Convierte magnitudes físicas en señales eléctricas."],
+    ["🧠 El microcontrolador ATmega328P", "Un microcontrolador es un pequeño ordenador en un chip. El ATmega328P tiene procesador de 8 bits a 16 MHz, 32 KB de memoria de programa y 2 KB de RAM. Ejecuta el código que escribes y controla los pines de entrada/salida."],
+    ["🛡️ Seguridad en el laboratorio", "• Trabaja siempre con la placa <strong>desconectada</strong> al hacer cambios en el circuito.<br>• Los kits Kidtrónica funcionan a <strong>5V o 3.3V</strong> — tensiones seguras para niños.<br>• Nunca conectes directamente a la red eléctrica (230V).<br>• Los kits con motor o hélice requieren supervisión adulta."]
+  ];
+  document.getElementById('ap-conceitos').innerHTML = conceitos.map(([titulo, texto]) =>
+    `<div class="concepto-card">
+      <div class="concepto-titulo">${titulo}</div>
+      <p class="concepto-texto">${texto}</p>
+    </div>`
+  ).join('');
+}
+
+// =====================================================
+// FILTROS
+// =====================================================
+function renderizarFiltros() {
+  const t = I18N[lang];
+  const labels = [t.filtro_todos, t.filtro_n1, t.filtro_n2, t.filtro_n3, t.filtro_n4, t.filtro_n5];
+  const vals   = ['todos','1','2','3','4','5'];
+  document.getElementById('filtros').innerHTML = labels.map((l,i) =>
+    `<button class="btn-filtro${filtroActual==vals[i]?' activo':''}" onclick="filtrar('${vals[i]}',this)">${l}</button>`
+  ).join('');
+}
+
+function renderizarPacksHL() {
+  const tit = lang==='pt' ? '📚 Explora por programa temático' : '📚 Explora por programa temático';
+  const sub = lang==='pt' ? '8 percursos com progressão pedagógica · clica para filtrares a grelha de kits' : '8 recorridos con progresión pedagógica · haz clic para filtrar la lista de kits';
+  const cards = COMBOS_TEMATICOS.map(c => {
+    const cl = c[lang];
+    const active = packActual === c.id ? ' activo' : '';
+    const nomeCurto = cl.nome.replace(/^Pack\s+/,'').replace(/^Dominar os?\s+/,'');
+    const kitsTxt = c.kits.length + ' kits';
+    // ---- imagens dos kits deste pack para o cross-fade ----
+    const packImgs = c.kits
+      .map(kid => KITS.find(k => k.id === kid))
+      .filter(k => k && k.img)
+      .map(k => `<img src="${k.img}" alt="${k[lang].nome}" loading="lazy" fetchpriority="low">`)
+      .join('');
+    return `<div class="pack-card-mini${active}" onclick="filtrarPorPack('${c.id}')" title="${cl.desc}">
+      <div class="pack-card-mini-bg">${packImgs}</div>
+      <div class="pack-card-mini-ico">${c.ico}</div>
+      <div class="pack-card-mini-nome">${nomeCurto}</div>
+      <div class="pack-card-mini-n">${kitsTxt}</div>
+      <div class="pack-card-mini-saving">−${Math.round(c.saving)}€</div>
+    </div>`;
+  }).join('');
+  document.getElementById('packs-hl').innerHTML = `
+    <div class="packs-hl-head">
+      <div class="packs-hl-titulo">${tit}</div>
+      <div class="packs-hl-sub">${sub}</div>
+    </div>
+    <div class="packs-hl-grid">${cards}</div>`;
+  iniciarAnimPacks();
+}
+
+// timers globais para poder cancelar antes de re-iniciar
+let _packAnimTimers = [];
+function iniciarAnimPacks(){
+  // limpar timers anteriores
+  _packAnimTimers.forEach(t => clearInterval(t));
+  _packAnimTimers = [];
+  document.querySelectorAll('.pack-card-mini').forEach((card, cardIdx) => {
+    const imgs = card.querySelectorAll('.pack-card-mini-bg img');
+    if (!imgs.length) return;
+    // primeira imagem activa (com pequeno stagger entre packs)
+    let idx = cardIdx % imgs.length;
+    setTimeout(() => imgs[idx].classList.add('active'), 40 + cardIdx * 120);
+    if (imgs.length < 2) return;
+    // intervalo de rotação — 3s por imagem, com stagger de 400ms entre packs
+    const timer = setInterval(() => {
+      imgs[idx].classList.remove('active');
+      idx = (idx + 1) % imgs.length;
+      imgs[idx].classList.add('active');
+    }, 3000);
+    _packAnimTimers.push(timer);
+  });
+}
+
+function renderizarPackInfo() {
+  const wrap = document.getElementById('pack-filtro-info-wrap');
+  if(!wrap) return;
+  if(!packActual){ wrap.innerHTML = ''; return; }
+  const c = COMBOS_TEMATICOS.find(x => x.id === packActual);
+  if(!c){ wrap.innerHTML = ''; return; }
+  const cl = c[lang];
+  const msg = lang==='pt'
+    ? `<span><strong>${c.ico} ${cl.nome}</strong> · a mostrar ${c.kits.length} kits deste programa · <a href="javascript:void(0)" onclick="mostrarPagina('combos');setTimeout(()=>{const e=document.getElementById('combo-${c.id}');if(e){e.scrollIntoView({behavior:'smooth',block:'start'});e.classList.add('combo-flash');setTimeout(()=>e.classList.remove('combo-flash'),1600);}},80)">ver programa completo →</a></span>`
+    : `<span><strong>${c.ico} ${cl.nome}</strong> · mostrando ${c.kits.length} kits de este programa · <a href="javascript:void(0)" onclick="mostrarPagina('combos');setTimeout(()=>{const e=document.getElementById('combo-${c.id}');if(e){e.scrollIntoView({behavior:'smooth',block:'start'});e.classList.add('combo-flash');setTimeout(()=>e.classList.remove('combo-flash'),1600);}},80)">ver programa completo →</a></span>`;
+  const btn = lang==='pt' ? 'Limpar' : 'Limpiar';
+  wrap.innerHTML = `<div class="pack-filtro-info">${msg}<button onclick="limparFiltroPack()">× ${btn}</button></div>`;
+}
+
+function filtrarPorPack(id) {
+  // Toggle: segundo clique no mesmo pack limpa o filtro.
+  if(packActual === id){ limparFiltroPack(); return; }
+  packActual = id;
+  filtroActual = 'todos';
+  const c = COMBOS_TEMATICOS.find(x => x.id === id);
+  if(!c) return;
+  const kits = c.kits.map(kid => KITS.find(k=>k.id===kid)).filter(Boolean);
+  renderizarPacksHL();
+  renderizarFiltros();
+  renderizarPackInfo();
+  renderizarGrid(kits);
+  // Scroll suave para a grid
+  const grid = document.getElementById('grid-kits');
+  if(grid) grid.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function limparFiltroPack() {
+  packActual = null;
+  renderizarPacksHL();
+  renderizarPackInfo();
+  renderizarGrid(filtroActual === 'todos' ? KITS : KITS.filter(k => k.nivel == filtroActual));
+}
+
+function filtrar(nivel, btn) {
+  filtroActual = nivel;
+  // Seleccionar um nível limpa qualquer pack activo — os dois filtros não se combinam.
+  if(packActual){ packActual = null; renderizarPacksHL(); renderizarPackInfo(); }
+  document.querySelectorAll('.btn-filtro').forEach(b => b.classList.remove('activo'));
+  if(btn) btn.classList.add('activo');
+  renderizarGrid(nivel === 'todos' ? KITS : KITS.filter(k => k.nivel == nivel));
+}
+
+// =====================================================
+// PACKS — helpers
+// =====================================================
+function packsDoKit(id){
+  return COMBOS_TEMATICOS.filter(c => c.kits.includes(id));
+}
+function irParaPack(ev, id){
+  if(ev) ev.stopPropagation();
+  mostrarPagina('combos');
+  setTimeout(() => {
+    const el = document.getElementById('combo-' + id);
+    if(el){ el.scrollIntoView({behavior:'smooth', block:'start'}); el.classList.add('combo-flash'); setTimeout(()=>el.classList.remove('combo-flash'), 1600); }
+  }, 80);
+}
+
+// =====================================================
+// RENDERIZAR GRID
+// =====================================================
+function renderizarGrid(kits) {
+  const t = I18N[lang];
+  document.getElementById('grid-kits').innerHTML = kits.map(k => {
+    const kl = k[lang];
+    return `
+    <div class="tarjeta-kit" onclick="verDetalle(${k.id})">
+      <div class="tarjeta-img">
+        ${k.img
+          ? `<img src="${k.img}" alt="${kl.nome}" style="width:100%;height:100%;object-fit:cover">`
+          : k.video
+            ? `<video autoplay muted loop playsinline preload="metadata" poster="${k.poster||''}"><source src="${k.video}" type="video/mp4"></video>`
+            : `<span class="emoji-fallback">${k.emoji}</span>`}
+        <span class="nivel-badge nivel-${k.nivel}">N${k.nivel} · ${t.nivel_nomes[k.nivel]}</span>
+        <span class="edad-badge">${k.idade} ${t.anos}</span>
+      </div>
+      ${(() => {
+        const packs = packsDoKit(k.id);
+        if(!packs.length) return '';
+        const intro = lang==='pt' ? 'Parte do' : 'Parte del';
+        return `<div class="tarjeta-packs">` + packs.map(p => `
+          <span class="pack-ref" onclick="irParaPack(event, '${p.id}')" title="${p[lang].nome}">
+            <span class="pack-ico">${p.ico}</span>${intro} <strong>${p[lang].nome}</strong> →
+          </span>`).join('') + `</div>`;
+      })()}
+      <div class="tarjeta-cuerpo">
+        <div class="tarjeta-num">${t.kit_ref}-${String(k.id).padStart(2,'0')}</div>
+        <div class="tarjeta-titulo">${kl.nome}</div>
+        <div class="tarjeta-desc">${kl.desc}</div>
+        <div class="chips">${k.chips.map(c=>`<span class="chip">${c}</span>`).join('')}</div>
+      </div>
+      <div class="tarjeta-pie">
+        <div>
+          <div class="precio">€${k.preco}</div>
+          <span class="precio-iva">${t.iva_label}</span>
+        </div>
+        <button class="btn-carrito-tarjeta" onclick="event.stopPropagation();anyadirAlCarrito(${k.id})">${t.btn_carrito_tarjeta}</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// =====================================================
+// DETALHE
+// =====================================================
+function verDetalle(id) {
+  const k = KITS.find(k => k.id === id);
+  if(!k) return;
+  const t = I18N[lang];
+  const kl = k[lang];
+
+  const hwTabla = k.hw.map(h =>
+    `<tr><td>${h.comp}</td>
+     <td><code style="font-family:'Share Tech Mono',monospace;font-size:.85rem;">${h.pin}</code></td>
+     <td><span class="pin-tipo pin-${h.tipo}">${h.tipo.toUpperCase()}</span></td></tr>`
+  ).join('');
+
+  const passos = kl.passos.map((p,i) =>
+    `<div class="paso">
+      <div class="paso-num">${String(i+1).padStart(2,'0')}</div>
+      <div class="paso-contenido"><h4>${p.t}</h4><p>${p.d}</p></div>
+    </div>`
+  ).join('');
+
+  // aviso drone
+  let avisoEspecial = '';
+  if(k.id === 31 || k.id === 34) {
+    avisoEspecial = `<div class="aviso-aesa">
+      <div class="av-titulo">${t.aviso_drone_titulo}</div>
+      <ul>${t.aviso_drone.map(a=>`<li>${a}</li>`).join('')}</ul>
+    </div>`;
+  }
+  if(k.id === 30) {
+    avisoEspecial = `<div class="aviso-aesa">
+      <div class="av-titulo">${t.aviso_foguetao_titulo}</div>
+      <ul>${t.aviso_foguetao.map(a=>`<li>${a}</li>`).join('')}</ul>
+    </div>`;
+  }
+
+  document.getElementById('detalle-contenido').innerHTML = `
+    <div class="detalle-titulo">${k.emoji} ${kl.nome}</div>
+    ${k.video ? `<div class="detalle-video"><video autoplay muted loop playsinline controls preload="metadata" poster="${k.poster||''}" style="width:100%;max-height:400px;border-radius:var(--radio-lg);background:#000;"><source src="${k.video}" type="video/mp4"></video></div>` : ''}
+    <div class="detalle-meta">
+      <span class="nivel-badge nivel-${k.nivel}">N${k.nivel} · ${t.nivel_nomes[k.nivel]}</span>
+      <span class="edad-badge" style="position:static;">${k.idade} ${t.anos}</span>
+      ${k.supervision ? `<span style="background:rgba(255,179,71,.15);border:1px solid rgba(255,179,71,.3);color:var(--aviso);padding:4px 10px;border-radius:99px;font-size:.72rem;">${t.supervision_label}</span>` : ''}
+    </div>
+    <div class="detalle-grid">
+      <div>
+        <div class="seccion">
+          <div class="seccion-titulo">${t.sec_desc}</div>
+          <p style="color:var(--texto2);line-height:1.7;">${kl.desc}</p>
+        </div>
+        <div class="seccion">
+          <div class="seccion-titulo">${t.sec_passos}</div>
+          ${passos}
+        </div>
+        <div class="seccion">
+          <div class="seccion-titulo">${t.sec_hw}</div>
+          <div style="overflow-x:auto;">
+            <table class="tabla-hw">
+              <thead><tr><th>${t.hw_comp}</th><th>${t.hw_pino}</th><th>${t.hw_tipo}</th></tr></thead>
+              <tbody>${hwTabla}</tbody>
+            </table>
+          </div>
+        </div>
+        <div class="seccion">
+          <div class="seccion-titulo">${t.sec_seg}</div>
+          <div class="panel-seguridad">
+            <div class="seg-titulo">${t.seg_antes}</div>
+            <ul>${kl.seguranca.map(s=>`<li>${s}</li>`).join('')}</ul>
+          </div>
+          ${avisoEspecial}
+        </div>
+        <div class="seccion">
+          <div class="seccion-titulo">${t.sec_comp}</div>
+          <div class="chips" style="gap:8px;">${k.chips.map(c=>`<span class="chip" style="padding:6px 14px;">${c}</span>`).join('')}</div>
+        </div>
+      </div>
+      <div class="panel-lateral">
+        <div class="tarjeta-compra">
+          <div class="precio-grande">€${k.preco}</div>
+          <div class="precio-desglose">${t.preco_desc}</div>
+          <button class="btn-comprar" onclick="anyadirAlCarrito(${k.id});mostrarPagina('carrito')">${t.btn_comprar}</button>
+          <button class="btn-comprar" style="background:var(--fundo3);color:var(--texto);border:1px solid var(--borde);" onclick="anyadirAlCarrito(${k.id})">${t.btn_so_add}</button>
+          <div class="incl-lista">
+            ${t.incl.map((i,idx)=>`<div class="incl-item"><span class="incl-icon">${idx>=4?'🚚↩️'.split('')[idx-4]:'✅'}</span> ${i}</div>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>`;
+  mostrarPagina('detalle');
+}
+
+// =====================================================
+// COMBOS
+// =====================================================
+const COMBOS_TEMATICOS = [
+  { id:'iluminacao', ico:'💡', pt:{nome:'Pack Iluminação',   desc:'8 projectos com LEDs para dominar a luz: pisca-pisca, semáforo, semáforo com peões, corrida, dado, sensor, mágico e RGB. O pack perfeito para começar.'},
+                               es:{nome:'Pack Iluminación',   desc:'8 proyectos con LEDs para dominar la luz: parpadeo, semáforo, semáforo con peatones, carrera, dado, sensor, mágico y RGB. El pack perfecto para empezar.'},
+    kits:[1,2,3,11,6,5,12,13], priceOrig:183.00, priceNow:89.90, saving:93.10 },
+  { id:'solar',     ico:'☀️', pt:{nome:'Pack Solar',         desc:'Da energia sem código ao sistema doméstico completo. 6 kits que ensinam toda a cadeia solar.'},
+                               es:{nome:'Pack Solar',         desc:'De la energía sin código al sistema doméstico completo. 6 kits que enseñan toda la cadena solar.'},
+    kits:[9,10,21,28,33,35], priceOrig:361.00, priceNow:273.90, saving:87.10 },
+  { id:'movimento', ico:'🏎️', pt:{nome:'Pack Movimento',     desc:'Ventiladores, carrinhos e robots. Domina motores DC, servos e controlo de movimento. Inclui agora o Robot Segue Luz como primeiro passo da progressão.'},
+                               es:{nome:'Pack Movimiento',    desc:'Ventiladores, coches y robots. Domina motores DC, servos y control de movimiento. Incluye ahora el Robot Sigue Luz como primer paso de la progresión.'},
+    kits:[7,8,19,23,27,29], priceOrig:239.00, priceNow:199.90, saving:39.10 },
+  { id:'robotica',  ico:'🦾', pt:{nome:'Pack Robótica',      desc:'Do joystick ao braço 4-DOF. Servos, cinemática, PID e aprendizagem por demonstração.'},
+                               es:{nome:'Pack Robótica',      desc:'Del joystick al brazo 4-DOF. Servos, cinemática, PID y aprendizaje por demostración.'},
+    kits:[17,20,23,27,29,34], priceOrig:351.00, priceNow:324.90, saving:26.10 },
+  { id:'sensores',  ico:'🌡️', pt:{nome:'Dominar os Sensores',desc:'LDR, ultrassom, PIR, temperatura, humidade, qualidade do ar. Aprende a ler o mundo físico.'},
+                               es:{nome:'Dominar los Sensores',desc:'LDR, ultrasonido, PIR, temperatura, humedad, calidad del aire. Aprende a leer el mundo físico.'},
+    kits:[5,15,18,24,25,31], priceOrig:250.00, priceNow:212.90, saving:37.10 },
+  { id:'ecras',     ico:'🖥️', pt:{nome:'Pack Ecrãs & Displays',desc:'Cada kit um ecrã diferente: LCD 16×2, 7 segmentos, OLED e TFT. Aprende multiplexagem, I²C, SPI e gráficos a cores — as bases de qualquer interface.'},
+                               es:{nome:'Pack Pantallas',      desc:'Cada kit una pantalla diferente: LCD 16×2, 7 segmentos, OLED y TFT. Aprende multiplexación, I²C, SPI y gráficos a color — las bases de cualquier interfaz.'},
+    kits:[14,16,22,32], priceOrig:188.00, priceNow:149.00, saving:39.00 },
+  { id:'som',       ico:'🎵', pt:{nome:'Pack Som & Música',  desc:'4 kits sobre produzir, detectar e visualizar som: do piano de 8 botões ao osciloscópio digital. Frequências, PWM, FFT e ADC aplicados à música.'},
+                               es:{nome:'Pack Sonido y Música',desc:'4 kits sobre producir, detectar y visualizar sonido: del piano de 8 botones al osciloscopio digital. Frecuencias, PWM, FFT y ADC aplicados a la música.'},
+    kits:[4,18,26,32], priceOrig:194.00, priceNow:149.00, saving:45.00 },
+  { id:'casa',      ico:'🏠', pt:{nome:'Pack Casa Inteligente',desc:'Temperatura, relógio, controlo de acessos, alarme e gestão solar IoT. Constrói uma casa que pensa, protege e funciona sozinha.'},
+                               es:{nome:'Pack Casa Inteligente',desc:'Temperatura, reloj, control de accesos, alarma y gestión solar IoT. Construye una casa que piensa, protege y funciona sola.'},
+    kits:[14,22,30,18,35], priceOrig:279.00, priceNow:219.00, saving:60.00 },
+
+];
+
+const LV_CORES = {1:'#4ade80',2:'#60a5fa',3:'#facc15',4:'#fb923c',5:'#c084fc'};
+
+function renderizarCombos() {
+  const t = I18N[lang];
+
+  // ── Temáticos ──
+  const tematicos = COMBOS_TEMATICOS.map(c => {
+    const cl = c[lang];
+    const lvCounts = {};
+    c.kits.forEach(id => { const k = KITS.find(x=>x.id===id); if(k) lvCounts[k.nivel]=(lvCounts[k.nivel]||0)+1; });
+    const lvBadges = Object.entries(lvCounts).sort((a,b)=>a[0]-b[0])
+      .map(([l,n])=>`<span class="combo-lv" style="background:${LV_CORES[l]}22;color:${LV_CORES[l]};border:1px solid ${LV_CORES[l]}44">N${l} ×${n}</span>`).join('');
+    const chips = c.kits.map(id => {
+      const k = KITS.find(x=>x.id===id); if(!k) return '';
+      return `<span class="combo-chip n${k.nivel}" onclick="event.stopPropagation();mostrarKit(${id})" title="${k[lang].nome}">#${String(id).padStart(2,'0')} ${k[lang].nome.split(' ').slice(0,3).join(' ')}</span>`;
+    }).join('');
+    const btnTxt = lang==='pt' ? '🛒 Adicionar Pack' : '🛒 Añadir Pack';
+    return `<div class="combo-card" id="combo-${c.id}">
+      <div class="combo-head">
+        <div class="combo-ico">${c.ico}</div>
+        <div><div class="combo-name">${cl.nome}</div><div class="combo-desc">${cl.desc}</div></div>
+      </div>
+      <div class="combo-lvls">${lvBadges}</div>
+      <div class="combo-chips">${chips}</div>
+      <div class="combo-foot">
+        <div>
+          <div class="combo-orig">${c.priceOrig.toFixed(2).replace('.',',')}€</div>
+          <div class="combo-now">${c.priceNow.toFixed(2).replace('.',',')}€</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+          <span class="combo-save">${lang==='pt'?'Poupa':'Ahorra'} ${c.saving.toFixed(2).replace('.',',')}€</span>
+          <button class="combo-btn" onclick="anyadirComboAlCarrito(${JSON.stringify(c.kits)})">${btnTxt}</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // ── Componentes partilhados ──
+  const shared = [
+    {ico:'🔌',name:'Placa ATmega328P (Uno/Nano)',n:28, pt:'Usada em 28 dos 35 kits', es:'Usada en 28 de los 35 kits'},
+    {ico:'🧩',name:'Breadboard + Jumpers',n:35,        pt:'100% dos kits — sem soldadura', es:'100% de los kits — sin soldadura'},
+    {ico:'📺',name:'Display OLED 0.96"',n:8,           pt:'Régua, Qualidade Ar, Osciloscópio e mais', es:'Regla, Calidad Aire, Osciloscopio y más'},
+    {ico:'📡',name:'HC-05 Bluetooth',n:2,              pt:'Robot BT, Braço Robótico', es:'Robot BT, Brazo Robótico'},
+    {ico:'🌡️',name:'Sensor DHT22',n:4,                pt:'Termómetro, Estação Met., Monitor Ar', es:'Termómetro, Estación Met., Monitor Aire'},
+    {ico:'📏',name:'HC-SR04 Ultrassom',n:4,            pt:'Régua, Robot BT, Robot Linha e mais', es:'Regla, Robot BT, Robot Línea y más'},
+    {ico:'⚡',name:'Motor DC + L298N',n:4,             pt:'Ventilador, Carrinho RC, Robot', es:'Ventilador, Coche RC, Robot'},
+    {ico:'🔋',name:'Bateria LiPo 3.7V',n:2,           pt:'Est. Off-Grid, Carregador MPPT', es:'Est. Off-Grid, Cargador MPPT'},
+  ];
+  const sharedCards = shared.map(s=>`<div class="shared-card">
+    <span class="shared-ico">${s.ico}</span>
+    <div>
+      <div class="shared-name">${s.name}</div>
+      <div class="shared-desc">${s[lang]}</div>
+      <div class="shared-n">${s.n} ${lang==='pt'?'kits':'kits'}</div>
+    </div>
+  </div>`).join('');
+
+  const titTem = lang==='pt' ? '🎯 Programas Temáticos — 8 percursos completos' : '🎯 Programas Temáticos — 8 recorridos completos';
+  const titShr = lang==='pt' ? '♻️ Componentes reutilizáveis — o teu laboratório cresce a cada programa' : '♻️ Componentes reutilizables — tu laboratorio crece con cada programa';
+  const heroH  = lang==='pt' ? 'Programas educativos <span style="color:var(--verde)">com progressão definida</span>' : 'Programas educativos <span style="color:var(--verde)">con progresión definida</span>';
+  const heroP  = lang==='pt' ? 'Cada programa é um percurso pensado: projectos que se complementam, conceitos que se encadeiam e componentes que se reutilizam. Aprende por temas, ao teu ritmo.' : 'Cada programa es un recorrido pensado: proyectos que se complementan, conceptos que se encadenan y componentes que se reutilizan. Aprende por temas, a tu ritmo.';
+  const ctaH   = lang==='pt' ? 'Não sabes por onde começar?' : '¿No sabes por dónde empezar?';
+  const ctaP   = lang==='pt' ? 'Explora os 35 kits ordenados pelos 5 níveis de dificuldade. Cada kit indica a idade recomendada e os conceitos que introduz.' : 'Explora los 35 kits ordenados por los 5 niveles de dificultad. Cada kit indica la edad recomendada y los conceptos que introduce.';
+  const ctaBtn = lang==='pt' ? 'Ver todos os 35 kits →' : 'Ver los 35 kits →';
+
+  const kvInfoH = lang==='pt' ? 'Kit individual ou Pack?' : '¿Kit individual o Pack?';
+  const kvInfoKit = lang==='pt'
+    ? '<strong>Kit individual</strong> — O código já vem carregado na placa. É só montar o circuito e funciona. Não precisas de computador nem de ligação à internet.'
+    : '<strong>Kit individual</strong> — El código ya viene cargado en la placa. Solo monta el circuito y funciona. No necesitas ordenador ni conexión a internet.';
+  const kvInfoPack = lang==='pt'
+    ? '<strong>Pack / Combo</strong> — Muito mais barato porque a placa, a breadboard e os fios são partilhados entre todos os projectos. Quando mudas de projecto, precisas de carregar o novo código para a placa — para isso é necessário um computador com ligação à internet.'
+    : '<strong>Pack / Combo</strong> — Mucho más barato porque la placa, la breadboard y los cables se comparten entre todos los proyectos. Cuando cambias de proyecto, necesitas cargar el nuevo código en la placa — para eso necesitas un ordenador con conexión a internet.';
+
+  document.getElementById('combos-wrap').innerHTML = `
+    <div class="combos-hero">
+      <h2>${heroH}</h2>
+      <p>${heroP}</p>
+    </div>
+    <div style="max-width:820px;margin:0 auto 2rem;background:rgba(0,232,122,.06);border:1px solid rgba(0,232,122,.2);border-radius:12px;padding:1.2rem 1.5rem;font-size:.88rem;line-height:1.7;color:var(--texto)">
+      <div style="font-weight:700;margin-bottom:.6rem;font-size:.95rem">${kvInfoH}</div>
+      <div style="display:flex;flex-direction:column;gap:.6rem">
+        <div>🔋 ${kvInfoKit}</div>
+        <div>📦 ${kvInfoPack}</div>
+      </div>
+    </div>
+    <div class="combos-sec">${titTem}</div>
+    <div class="combo-grid">${tematicos}</div>
+    <div class="combos-sec">${titShr}</div>
+    <div class="shared-grid">${sharedCards}</div>
+    <div class="combos-cta">
+      <h3>${ctaH}</h3>
+      <p>${ctaP}</p>
+      <button class="btn-comprar" style="max-width:240px;margin:0 auto;display:block" onclick="mostrarPagina('home')">${ctaBtn}</button>
+    </div>`;
+}
+
+function anyadirComboAlCarrito(kitsIds) {
+  kitsIds.forEach(id => anyadirAlCarrito(id));
+  mostrarPagina('carrito');
+}
+
+function mostrarKit(id) {
+  mostrarPagina('home');
+  setTimeout(() => {
+    const el = document.querySelector(`[data-kit-id="${id}"]`);
+    if(el) el.scrollIntoView({behavior:'smooth', block:'center'});
+  }, 100);
+}
+
+
+function mostrarPagina(id) {
+  document.querySelectorAll('.pagina').forEach(p => p.classList.remove('activa'));
+  document.getElementById('pagina-' + id).classList.add('activa');
+  window.scrollTo(0,0);
+  if(id === 'carrito') renderizarCarrito();
+  if(id === 'checkout') renderizarResumenCheckout();
+  if(id === 'combos') renderizarCombos();
+  // Fecha o drawer mobile se estiver aberto
+  const nl = document.getElementById('nav-links');
+  if(nl && nl.classList.contains('open')) toggleMenuMobile();
+}
+
+function toggleMenuMobile(){
+  const nl = document.getElementById('nav-links');
+  const bd = document.getElementById('nav-backdrop');
+  const tg = document.getElementById('nav-toggle');
+  if(!nl) return;
+  const isOpen = nl.classList.toggle('open');
+  if(bd) bd.classList.toggle('visible', isOpen);
+  if(tg){ tg.classList.toggle('open', isOpen); tg.setAttribute('aria-expanded', isOpen); }
+  document.body.style.overflow = isOpen ? 'hidden' : '';
+}
+
+// =====================================================
+// CARRINHO
+// =====================================================
+function anyadirAlCarrito(id) {
+  const existe = carrito.find(i => i.kit.id === id);
+  if(existe) existe.quantidade++;
+  else carrito.push({kit: KITS.find(k=>k.id===id), quantidade:1});
+  actualizarBadge();
+  const nome = KITS.find(k=>k.id===id)[lang].nome;
+  mostrarToast(I18N[lang].toast_add + ': ' + nome);
+}
+
+function cambiarCantidade(id, d) {
+  const item = carrito.find(i=>i.kit.id===id);
+  if(!item) return;
+  item.quantidade += d;
+  if(item.quantidade<=0) carrito = carrito.filter(i=>i.kit.id!==id);
+  actualizarBadge();
+  renderizarCarrito();
+}
+
+function eliminar(id) {
+  carrito = carrito.filter(i=>i.kit.id!==id);
+  actualizarBadge();
+  renderizarCarrito();
+}
+
+function actualizarBadge() {
+  const total = carrito.reduce((s,i)=>s+i.quantidade,0);
+  document.getElementById('badge-carrito').textContent = total;
+  const bm = document.getElementById('badge-carrito-mobile'); if(bm) bm.textContent = total;
+}
+
+function renderizarCarrito() {
+  const t = I18N[lang];
+  const limiar = lang==='pt' ? 50 : 65;
+  const porteFix = lang==='pt' ? 4.2 : 6.5;
+  const cont = document.getElementById('carrito-items');
+  if(!carrito.length) {
+    cont.innerHTML = `<div class="carrito-vacio">
+      <div class="carrito-vacio-icono">🛒</div>
+      <h3 style="margin-bottom:8px;">${t.carrito_vazio_titulo}</h3>
+      <p style="margin-bottom:24px;">${t.carrito_vazio_desc}</p>
+      <button class="btn-comprar" style="max-width:200px;margin:0 auto;display:block;" onclick="mostrarPagina('home')">${t.carrito_ver}</button>
+    </div>`; return;
+  }
+  const sub = carrito.reduce((s,i)=>s+i.kit.preco*i.quantidade,0);
+  const porte = sub>=limiar?0:porteFix;
+  const total = sub+porte;
+  const envFaltaStr = t.carrito_falta.split(String.fromCharCode(123)+'n'+String.fromCharCode(125)).join((limiar-sub).toFixed(2));
+  const env_falta = sub<limiar ? '<div class="resumen-linea" style="color:var(--texto3);font-size:.82rem;"><span>' + envFaltaStr + '</span><span></span></div>' : '';
+  const nart = carrito.reduce((s,i)=>s+i.quantidade,0);
+  cont.innerHTML = carrito.map(item => `
+    <div class="carrito-item">
+      <div class="carrito-item-emoji">${item.kit.emoji}</div>
+      <div class="carrito-item-info">
+        <div class="carrito-item-nombre">${item.kit[lang].nome}</div>
+        <div class="carrito-item-nivel">N${item.kit.nivel} · ${t.kit_ref}-${String(item.kit.id).padStart(2,'0')}</div>
+      </div>
+      <div class="carrito-item-controles">
+        <button class="btn-qty" onclick="cambiarCantidade(${item.kit.id},-1)">−</button>
+        <span class="qty-num">${item.quantidade}</span>
+        <button class="btn-qty" onclick="cambiarCantidade(${item.kit.id},1)">+</button>
+      </div>
+      <div class="carrito-item-precio">€${(item.kit.preco*item.quantidade).toFixed(2)}</div>
+      <button class="btn-eliminar" onclick="eliminar(${item.kit.id})">🗑</button>
+    </div>`).join('') + `
+  <div class="carrito-resumen">
+    <div class="resumen-linea">
+      <span>${t.carrito_subtotal} (${nart} ${nart===1?t.artigo:t.artigos})</span>
+      <span>€${sub.toFixed(2)}</span>
+    </div>
+    <div class="resumen-linea">
+      <span>${t.carrito_envio}</span>
+      <span>${porte===0?`<span class="envio-gratis">${t.envio_gratis}</span>`:`€${porte.toFixed(2)}`}</span>
+    </div>
+    ${sub<limiar ? env_falta : ''}
+    <div class="resumen-total"><span>${t.carrito_total}</span><span>€${total.toFixed(2)}</span></div>
+    <button class="btn-finalizar" onclick="mostrarPagina('checkout')" style="margin-top:20px;">${t.carrito_continuar}</button>
+  </div>`;
+}
+
+function renderizarResumenCheckout() {
+  const t = I18N[lang];
+  const limiar = lang==='pt' ? 50 : 65;
+  const porteFix = lang==='pt' ? 4.2 : 6.5;
+  if(!carrito.length) { mostrarPagina('carrito'); return; }
+  const sub = carrito.reduce((s,i)=>s+i.kit.preco*i.quantidade,0);
+  const porte = sub>=limiar?0:porteFix;
+  const total = sub+porte;
+  document.getElementById('checkout-resumen-items').innerHTML =
+    carrito.map(i=>`<div class="resumen-linea"><span>${i.kit.emoji} ${i.kit[lang].nome} ×${i.quantidade}</span><span>€${(i.kit.preco*i.quantidade).toFixed(2)}</span></div>`).join('') +
+    `<div class="resumen-linea"><span>${t.carrito_envio}</span><span>${porte===0?`<span class="envio-gratis">${t.envio_gratis}</span>`:`€${porte.toFixed(2)}`}</span></div>
+     <div class="resumen-total"><span>${t.carrito_total}</span><span>€${total.toFixed(2)}</span></div>`;
+}
+
+function seleccionarPago(el) {
+  document.querySelectorAll('.metodo-pago').forEach(m=>m.classList.remove('seleccionado'));
+  el.classList.add('seleccionado');
+}
+
+function finalizarCompra() {
+  const prefix = I18N[lang].conf_ref_prefix;
+  document.getElementById('conf-ref').textContent = prefix + Date.now().toString().slice(-6);
+  carrito = []; actualizarBadge();
+  mostrarPagina('confirmacion');
+}
+
+function mostrarToast(texto) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-texto').textContent = texto;
+  t.classList.add('visible');
+  setTimeout(()=>t.classList.remove('visible'), 2800);
+}
+
+// =====================================================
+// INICIALIZAÇÃO
+// =====================================================
+document.addEventListener('DOMContentLoaded', () => {
+  aplicarI18N();
+  renderizarFiltros();
+  renderizarPacksHL();
+  renderizarGrid(KITS);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300">
+  <defs>
+    <style>
+      .pcb-base { fill: #0a5e3a; }
+      .pcb-trace { stroke: #c49a4f; stroke-width: 1.6; fill: none; stroke-linecap: round; stroke-linejoin: round; opacity: 0.55; }
+      .pcb-trace-thin { stroke: #c49a4f; stroke-width: 1; fill: none; stroke-linecap: round; stroke-linejoin: round; opacity: 0.4; }
+      .pcb-pad { fill: #d9a441; opacity: 0.8; }
+      .pcb-via { fill: #0a3a24; stroke: #d9a441; stroke-width: 0.8; opacity: 0.7; }
+      .pcb-silk { fill: none; stroke: #e8f0ea; stroke-width: 0.5; opacity: 0.18; }
+      .pcb-silk-fill { fill: #e8f0ea; opacity: 0.12; }
+    </style>
+  </defs>
+
+  <rect class="pcb-base" width="300" height="300"/>
+
+  <!-- Main copper traces (with 90-degree bends, Arduino-style) -->
+  <path class="pcb-trace" d="M 0 60 L 90 60 L 100 70 L 100 140 L 240 140 L 250 150 L 250 220 L 300 220"/>
+  <path class="pcb-trace" d="M 60 0 L 60 70 L 70 80 L 150 80 L 150 170 L 140 180 L 80 180 L 80 300"/>
+  <path class="pcb-trace" d="M 0 240 L 30 240 L 40 250 L 180 250 L 180 300"/>
+  <path class="pcb-trace" d="M 300 40 L 230 40 L 220 50 L 220 110 L 260 110 L 270 120 L 270 300"/>
+  <path class="pcb-trace-thin" d="M 130 0 L 130 30 L 140 40 L 210 40"/>
+  <path class="pcb-trace-thin" d="M 20 105 L 20 130 L 40 130 L 50 140 L 50 175"/>
+  <path class="pcb-trace-thin" d="M 195 220 L 195 265 L 215 265 L 215 300"/>
+  <path class="pcb-trace-thin" d="M 300 170 L 278 170 L 270 178 L 250 178"/>
+
+  <!-- Circular pads at trace endpoints/junctions -->
+  <circle class="pcb-pad" cx="60" cy="60" r="3.2"/>
+  <circle class="pcb-pad" cx="60" cy="240" r="3"/>
+  <circle class="pcb-pad" cx="100" cy="140" r="3.2"/>
+  <circle class="pcb-pad" cx="150" cy="80" r="3.2"/>
+  <circle class="pcb-pad" cx="150" cy="170" r="2.8"/>
+  <circle class="pcb-pad" cx="220" cy="110" r="3"/>
+  <circle class="pcb-pad" cx="250" cy="140" r="3.2"/>
+  <circle class="pcb-pad" cx="250" cy="220" r="3"/>
+  <circle class="pcb-pad" cx="130" cy="30" r="2.5"/>
+  <circle class="pcb-pad" cx="210" cy="40" r="2.8"/>
+  <circle class="pcb-pad" cx="180" cy="250" r="2.8"/>
+  <circle class="pcb-pad" cx="50" cy="175" r="2.5"/>
+
+  <!-- Plated through-hole vias -->
+  <circle class="pcb-via" cx="105" cy="215" r="2.2"/>
+  <circle class="pcb-via" cx="35" cy="30" r="2.2"/>
+  <circle class="pcb-via" cx="285" cy="265" r="2.2"/>
+  <circle class="pcb-via" cx="175" cy="115" r="2"/>
+  <circle class="pcb-via" cx="235" cy="185" r="2"/>
+
+  <!-- IC silkscreen outline (DIP-16 style) -->
+  <rect class="pcb-silk" x="175" y="165" width="65" height="30" rx="1.5"/>
+  <circle class="pcb-silk" cx="184" cy="174" r="1.8"/>
+  <path class="pcb-silk" d="M 178 180 L 182 180 M 187 180 L 191 180 M 196 180 L 200 180 M 205 180 L 209 180 M 214 180 L 218 180 M 223 180 L 227 180 M 232 180 L 236 180"/>
+
+  <!-- Resistor silkscreen -->
+  <rect class="pcb-silk" x="20" y="100" width="30" height="8" rx="1"/>
+  <line class="pcb-silk" x1="10" y1="104" x2="20" y2="104"/>
+  <line class="pcb-silk" x1="50" y1="104" x2="60" y2="104"/>
+
+  <!-- Capacitor circle silkscreen -->
+  <circle class="pcb-silk" cx="115" cy="260" r="6"/>
+  <line class="pcb-silk" x1="109" y1="260" x2="121" y2="260"/>
+
+  <!-- Mounting hole cross-hair -->
+  <g class="pcb-silk">
+    <circle cx="25" cy="280" r="5" fill="none"/>
+    <line x1="17" y1="280" x2="33" y2="280"/>
+    <line x1="25" y1="272" x2="25" y2="288"/>
+  </g>
+</svg>
